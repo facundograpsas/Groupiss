@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    <RelativeLayout
+        android:id="@+id/public_group_dialog_init_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="34dp"
+        android:background="@color/colorPrimary"
+        >
+    </View>
+
+    <TextView
+        android:id="@+id/public_group_dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Crear grupo publico"
+        android:layout_centerInParent="true"
+        android:textSize="20sp"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="5dp">
+    </TextView>
+
+    <ImageView
+        android:id="@+id/public_group_dialog_info_icon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_below="@id/public_group_dialog_title"
+        android:src="@android:drawable/ic_menu_info_details"
+        android:layout_marginTop="10dp">
+    </ImageView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="este grupo será público, aparecera en el lobby y cualquiera podrá entrar en él."
+        android:layout_toRightOf="@+id/public_group_dialog_info_icon"
+        android:layout_below="@id/public_group_dialog_title"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="6dp">
+    </TextView>
+    </RelativeLayout>
+
+    <View
+        android:layout_margin="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/public_group_dialog_init_layout"
+        android:background="@android:color/darker_gray"
+        >
+
+    </View>
+
+
+    <TextView
+        android:id="@+id/public_group_dialog_group_name_text"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_below="@id/public_group_dialog_init_layout"
+        android:text="Nombre del grupo"
+        android:textSize="20dp"
+        android:layout_margin="15dp"
+        android:textColor="@android:color/black">
+    </TextView>
+
+    <EditText
+        android:id="@+id/public_group_dialog_group_name_edit"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/public_group_dialog_group_name_text"
+        android:layout_marginLeft="15dp"
+        android:hint="nombre del grupo...">
+    </EditText>
+
+    <TextView
+        android:id="@+id/public_group_dialog_group_info_text"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_below="@id/public_group_dialog_group_name_edit"
+        android:text="Info (Opcional)"
+        android:textSize="20dp"
+        android:layout_margin="15dp"
+        android:textColor="@android:color/black">
+    </TextView>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_below="@+id/public_group_dialog_group_info_text"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:hint="info del grupo..."
+        android:inputType="textMultiLine">
+    </EditText>
+
+
+
+
+</RelativeLayout>

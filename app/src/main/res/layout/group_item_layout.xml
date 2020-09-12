@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
+    android:layout_margin="5dp"
+    >
+
+    <View
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="300dp"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:alpha="0.3"
+        android:layout_centerHorizontal="true">
+    </View>
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/group_layout_profile_picture"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/default_group_logo"
+        android:layout_margin="10dp"
+        >
+    </de.hdodenhof.circleimageview.CircleImageView>
+
+    <TextView
+        android:id="@+id/group_layout_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/group_layout_profile_picture"
+        android:text="Name test for group"
+        android:textSize="18sp"
+        android:layout_alignTop="@id/group_layout_profile_picture"
+        android:layout_marginTop="3dp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        >
+    </TextView>
+
+    <TextView
+        android:id="@+id/group_layout_members"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/group_layout_title"
+        android:layout_alignStart="@id/group_layout_title"
+        android:layout_marginTop="3dp">
+    </TextView>
+
+    <ImageView
+        android:id="@+id/group_layout_info"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentEnd="true"
+        android:src="@android:drawable/ic_menu_info_details"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dp"
+        >
+    </ImageView>
+
+    <View
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        >
+    </View>
+
+
+</RelativeLayout>

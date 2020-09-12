@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp">
+
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerInParent="true"
+        android:background="@drawable/chat_bubble_receivers">
+
+
+
+        <TextView
+            android:id="@+id/chat_sender_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lorekljjlkjlum"
+            android:textSize="16sp"
+            android:padding="7dp"
+            android:layout_below="@id/chat_receiver_username"
+            android:textColor="@android:color/black">
+        </TextView>
+
+        <TextView
+            android:id="@+id/chat_hour"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:text="15:30"
+            android:layout_toEndOf="@id/chat_receiver_username"
+            android:layout_alignBaseline="@id/chat_receiver_username"
+            android:textSize="12sp"
+            android:layout_marginEnd="10dp"
+            android:lines="1"
+            android:gravity="end"
+            android:layout_alignWithParentIfMissing="true"
+            android:forceHasOverlappingRendering="true"
+            android:duplicateParentState="true">
+        </TextView>
+
+        <TextView
+            android:id="@+id/chat_receiver_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:textStyle="bold"
+            android:layout_marginStart="7dp"
+            android:text="Pedro picapiedra"
+            android:layout_marginTop="5dp"
+            android:textColor="@android:color/black">
+
+
+        </TextView>
+    </RelativeLayout>
+</RelativeLayout>

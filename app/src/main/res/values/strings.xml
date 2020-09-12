@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Groupis</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="tab_text_3">Tab 3</string>
+    <string name="logout">Logout</string>
+    <string name="settings">Settings</string>
+    <string name="groupis">Groupis</string>
+    <string name="my_groups">Mis Grupos</string>
+    <string name="lobby">Lobby</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
