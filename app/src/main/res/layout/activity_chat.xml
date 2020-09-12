@@ -63,16 +63,5 @@
         >
 
     </ImageView>
-
-    <ImageView
-        android:id="@+id/chat_emoji_button"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:src="@drawable/back_arrow"
-        android:layout_above="@id/chat_edit_text"
-        >
-
-    </ImageView>
-
-
+    
 </RelativeLayout>

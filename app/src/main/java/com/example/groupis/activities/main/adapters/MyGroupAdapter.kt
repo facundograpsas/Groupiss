@@ -48,6 +48,7 @@ class MyGroupAdapter(private val mContext : Context, private val mGroupList : Ar
             override fun onCallback(value: Chat) {
                 val username = value.getUsername()
                 holder.groupLastMessage.text = username+":"+value.getText()
+                holder.groupLastMessageTime.text = value.getHour()
             } }, group.getTitle())
 
         holder.groupTitle.text = group.getTitle()
@@ -95,6 +96,7 @@ class MyGroupAdapter(private val mContext : Context, private val mGroupList : Ar
         val groupTitle = itemView.findViewById<TextView>(R.id.my_group_layout_title)
         val groupPicture = itemView.findViewById<ImageView>(R.id.my_group_layout_profile_picture)
         val groupLastMessage = itemView.findViewById<TextView>(R.id.my_group_layout_last_message)
+        val groupLastMessageTime = itemView.findViewById<TextView>(R.id.my_group_layout_last_message_time)
 
 
     }

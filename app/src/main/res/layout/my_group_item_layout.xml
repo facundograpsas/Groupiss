@@ -53,6 +53,18 @@
         android:lines="1">
     </TextView>
 
+
+    <TextView
+        android:id="@+id/my_group_layout_last_message_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="14:30"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBaseline="@id/my_group_layout_last_message"
+        android:textSize="12sp">
+
+    </TextView>
+
     <View
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
