@@ -71,34 +71,39 @@ class MyGroupsFragment : Fragment() {
         return view
     }
 
-    private fun retrieveMyGroups(viewModel : UserViewModel, groupViewModel: GroupViewModel) {
-        FirebaseDatabase.getInstance().reference.child("Groups").addValueEventListener(object : ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
-                myGroups.clear()
-                for(p0 in snapshot.children) {
-                    val userList = p0.child("users")
-                    for(user in userList.children){
-                        if(user.key==FirebaseAuth.getInstance().currentUser!!.uid){
-                            val group = p0.getValue(Group::class.java)
-                            group!!.setUserSize(userList.childrenCount.toInt())
-                            myGroups.add(group)
-                        }
-                    }
-                }
-                if(viewModel.getUser().value!=null) {
-                    println("User: "+viewModel.getUser().value)
-                    println(context)
-                    println(myGroups)
-                    groupAdapter = MyGroupAdapter(mContext, myGroups, viewModel.getUser().value!!, groupViewModel)
-                    recyclerView.adapter = groupAdapter
-                }
-            }
+//    private fun retrieveMyGroups(viewModel : UserViewModel, groupViewModel: GroupViewModel) {
+//        FirebaseDatabase.getInstance().reference.child("Groups").addValueEventListener(object : ValueEventListener{
+//            override fun onDataChange(snapshot: DataSnapshot) {
+//                myGroups.clear()
+//                for(p0 in snapshot.children) {
+//                    val userList = p0.child("users")
+//                    for(user in userList.children){
+//                        if(user.key==FirebaseAuth.getInstance().currentUser!!.uid){
+//                            val group = p0.getValue(Group::class.java)
+//                            group!!.setUserSize(userList.childrenCount.toInt())
+//                            myGroups.add(group)
+//                        }
+//                    }
+//                }
+//                if(viewModel.getUser().value!=null) {
+//                    println("User: "+viewModel.getUser().value)
+//                    println(context)
+//                    println(myGroups)
+//                    groupAdapter = MyGroupAdapter(mContext, myGroups, viewModel.getUser().value!!, groupViewModel)
+//                    recyclerView.adapter = groupAdapter
+//                }
+//            }
+//
+//            override fun onCancelled(error: DatabaseError) {
+//                TODO("Not yet implemented")
+//            }
+//
+//        })
+//    }
 
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
 
-        })
+    private fun retrieveMyGroups(userViewModel: UserViewModel, groupViewModel: GroupViewModel){
+        groupViewModel.getMyGroups(myGroups, userViewModel, mContext, recyclerView, groupViewModel)
     }
 
     private fun getLastMessage(){

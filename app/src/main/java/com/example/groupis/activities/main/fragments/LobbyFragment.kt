@@ -50,24 +50,15 @@ class LobbyFragment : Fragment() {
     ): View? {
 
         val viewModel : UserViewModel by activityViewModels()
+        val groupViewModel : GroupViewModel by activityViewModels()
 
         mContext = requireActivity()
-
 
         val view = inflater.inflate(R.layout.fragment_lobby, container, false)
 
         var users = arrayListOf<User>()
-//        users.add(User("Pepe", "asd","ASD","asd"))
-//        users.add(User("Pepe", "asd","ASD","asd"))
-//        users.add(User("Pepe", "asd","ASD","asd"))
-
-
-//        var group1 = Group(users,"grupo 1",null)
-//        var group2 = Group(users,"grupo 2",null)
 
           groups = arrayListOf<Group>()
-//        groups.add(group1)
-//        groups.add(group2)
 
         recyclerGroupList = view.findViewById(R.id.group_lobby_recycler_view)
         recyclerGroupList.setHasFixedSize(true)
@@ -77,74 +68,59 @@ class LobbyFragment : Fragment() {
         createPublicGroupResult()
 
         viewModel.userLoaded.observe(viewLifecycleOwner, Observer {
-            retrievePublicGroups(viewModel)
+            retrievePublicGroups(groupViewModel, viewModel)
         })
 
         // Inflate the layout for this fragment
         return view
     }
 
-    private fun retrievePublicGroups(viewModel: UserViewModel) {
-        val dbRef = FirebaseDatabase.getInstance().reference.child("Groups").addValueEventListener(
-            object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    Log.d("DEBUG", "EJECUTATRES")
-                    groups.clear()
-                    for (p0 in snapshot.children) {
-                        val userList = p0.child("users")
-                        val group = p0.getValue(Group::class.java)
-                        group!!.setUserSize(userList.childrenCount.toInt())
-                        groups.add(group!!)
-                        Log.d("DEBUG", "IN FOR")
-                    }
-                    Log.d("DEBUG", "POST FOR")
-                    if (viewModel.getUser().value != null) {
-                        println("User: " + viewModel.getUser().value)
-                        println(context)
-                        println(mContext)
-                        println(groups)
-                        groupAdapter = GroupAdapter(mContext, groups, viewModel.getUser().value!!)
-                        recyclerGroupList.adapter = groupAdapter
-                    }
-                }
+//    private fun retrievePublicGroups(viewModel: UserViewModel) {
+//        val dbRef = FirebaseDatabase.getInstance().reference.child("Groups").addValueEventListener(
+//            object : ValueEventListener {
+//                override fun onDataChange(snapshot: DataSnapshot) {
+//                    Log.d("DEBUG", "EJECUTATRES")
+//                    groups.clear()
+//                    for (p0 in snapshot.children) {
+//                        val userList = p0.child("users")
+//                        val group = p0.getValue(Group::class.java)
+//                        group!!.setUserSize(userList.childrenCount.toInt())
+//                        groups.add(group!!)
+//                        Log.d("DEBUG", "IN FOR")
+//                    }
+//                    Log.d("DEBUG", "POST FOR")
+//                    if (viewModel.getUser().value != null) {
+//                        println("User: " + viewModel.getUser().value)
+//                        println(context)
+//                        println(mContext)
+//                        println(groups)
+//                        groupAdapter = GroupAdapter(mContext, groups, viewModel.getUser().value!!)
+//                        recyclerGroupList.adapter = groupAdapter
+//                    }
+//                }
+//
+//                override fun onCancelled(error: DatabaseError) {
+//                    println(error.message)
+//                }
+//
+//            })
+//    }
 
-                override fun onCancelled(error: DatabaseError) {
-                    println(error.message)
-                }
-
-            })
-
+    private fun retrievePublicGroups(groupViewModel: GroupViewModel, userViewModel: UserViewModel){
+        groupViewModel.getPublicGroups(groups, userViewModel, mContext, recyclerGroupList)
     }
 
     private fun createPublicGroupResult() {
         val viewModel = GroupViewModel()
         viewModel.newGroupState.observe(viewLifecycleOwner, Observer { result ->
             when (result) {
-                "LARGO INVALIDO" -> Toast.makeText(
-                    context,
-                    "El nombre del grupo debe tener entre 4 y 16 caracteres.",
-                    Toast.LENGTH_LONG
-                ).show()
-                "EXISTE" -> Toast.makeText(
-                    context,
-                    "Ya hay un grupo con ese nombre",
-                    Toast.LENGTH_LONG
-                ).show()
-                "NO EXISTE" -> Toast.makeText(
-                    context,
-                    "Grupo creado exitosamente",
-                    Toast.LENGTH_LONG
-                ).show()
+                "LARGO INVALIDO" -> Toast.makeText(context, "El nombre del grupo debe tener entre 4 y 16 caracteres.", Toast.LENGTH_LONG).show()
+                "EXISTE" -> Toast.makeText(context, "Ya hay un grupo con ese nombre", Toast.LENGTH_LONG).show()
+                "NO EXISTE" -> Toast.makeText(context, "Grupo creado exitosamente", Toast.LENGTH_LONG).show()
             }
         })
     }
 
-
-    override fun onResume() {
-        super.onResume()
-
-
-    }
 
     companion object {
 

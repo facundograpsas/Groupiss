@@ -10,7 +10,7 @@ import com.example.groupis.R
 import com.example.groupis.models.Chat
 import com.google.firebase.auth.FirebaseAuth
 
-class ChatAdapter(val context: Context, private val chatList: ArrayList<Chat>, private val username : String) : RecyclerView.Adapter<ChatAdapter.ViewHolder>() {
+class ChatAdapter(var context: Context, private var chatList: ArrayList<Chat>, private var username : String) : RecyclerView.Adapter<ChatAdapter.ViewHolder>() {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -45,7 +45,6 @@ class ChatAdapter(val context: Context, private val chatList: ArrayList<Chat>, p
 
 
     }
-
 
     class ViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
 

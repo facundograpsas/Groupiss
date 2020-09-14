@@ -44,7 +44,7 @@ class MyGroupAdapter(private val mContext : Context, private val mGroupList : Ar
 //        groupViewModel.getLastMessageFromData(group.getTitle())
 //        println(groupViewModel.lastMessage.value)
 
-        groupViewModel.readData(object : LastMessageCallback {
+        groupViewModel.getLastMessage(object : LastMessageCallback {
             override fun onCallback(value: Chat) {
                 val username = value.getUsername()
                 holder.groupLastMessage.text = username+":"+value.getText()
