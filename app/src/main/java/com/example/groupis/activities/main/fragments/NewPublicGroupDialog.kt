@@ -35,7 +35,7 @@ class NewPublicGroupDialog : DialogFragment() {
             builder.setView(dialogView)
                 // Add action buttons
                 .setPositiveButton("Crear Grupi") { _, _ ->
-                    viewModel.addNewGroup(groupName.text.toString(), userViewModel ,object : UsernameCallback{
+                    viewModel.addNewGroup(groupName.text.toString(),userViewModel,object : UsernameCallback{
                         override fun onCallback(value: String) {
                             when (value) {
                                 "EXISTE" -> { viewModel.setGroupState(value) }
@@ -54,34 +54,4 @@ class NewPublicGroupDialog : DialogFragment() {
 
         } ?: throw IllegalStateException("Activity cannot be null")
     }
-
-//    private fun readData(callback: UsernameCallback, viewModel : UserViewModel){
-//        val dbRef = FirebaseDatabase.getInstance().reference.child("Groups").orderByChild("name").equalTo(groupName.text.toString())
-//        dbRef.addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                if(snapshot.exists()){
-//                    callback.onCallback("EXISTE")
-//                }else{
-//                    if(groupName.text.toString().length<4 || groupName.text.toString().length>16){
-//                        callback.onCallback("LARGO INVALIDO")
-//                    }
-//                    else {
-//                        val groupRef = FirebaseDatabase.getInstance().reference.child("Groups").child(groupName.text.toString())
-//                        val hashMapG = HashMap<String, Any?>()
-//                        hashMapG["title"] = groupName.text.toString()
-//                        hashMapG["picture"] = null
-//                        groupRef.updateChildren(hashMapG)
-//                        callback.onCallback("NO EXISTE")
-//                        val hashMapU = HashMap<String, Any>()
-//                        hashMapU["userdata"] = viewModel.getUser().value!!
-//                        groupRef.child("users").child(FirebaseAuth.getInstance().currentUser!!.uid).updateChildren(hashMapU)
-//
-//                    }
-//                }
-//            }
-//            override fun onCancelled(error: DatabaseError) {
-//
-//            }
-//        })
-//    }
 }

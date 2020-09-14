@@ -70,49 +70,6 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-//    private fun sendMessage(){
-//            val dbRef = FirebaseDatabase.getInstance().reference.child("Groups").child(groupTitle)
-//                .child("messages")
-//            dbRef.addListenerForSingleValueEvent(object : ValueEventListener {
-//                override fun onDataChange(snapshot: DataSnapshot) {
-//                    val hashMap = hashMapOf<String, Any>()
-//                    hashMap["text"] = messageText.text.toString()
-//                    hashMap["username"] = username
-//                    hashMap["uid"] = FirebaseAuth.getInstance().currentUser!!.uid
-//                    hashMap["hour"] = DateUtils.formatDateTime(this@ChatActivity, System.currentTimeMillis(), DateUtils.FORMAT_SHOW_TIME)
-//                    dbRef.child(dbRef.push().key!!).updateChildren(hashMap)
-////                    chatList.add(Chat(messageText.text.toString(), username))
-//                    messageText.text.clear()
-////                    adapter = ChatAdapter(applicationContext, chatList)
-////                    recyclerView.adapter = adapter
-//                }
-//                override fun onCancelled(error: DatabaseError) {
-//                    println("UYY QUE PASO XD")
-//                }
-//            })
-//        }
-
-//    private fun retrieveMessages(){
-//        val dbRef = FirebaseDatabase.getInstance().reference.child("Groups").child(groupTitle)
-//            .child("messages")
-//        dbRef.addValueEventListener(object : ValueEventListener{
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                chatList.clear()
-//                for(p0 in snapshot.children){
-//                    val message = p0.getValue(Chat::class.java)
-//                    chatList.add(message!!)
-//                }
-//                adapter = ChatAdapter(applicationContext, chatList, username)
-//                recyclerView.adapter = adapter
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//                TODO("Not yet implemented")
-//            }
-//
-//        })
-//    }
-
     override fun onBackPressed() {
         super.onBackPressed()
         finish()

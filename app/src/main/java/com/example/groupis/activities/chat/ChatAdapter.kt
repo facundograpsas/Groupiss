@@ -42,8 +42,6 @@ class ChatAdapter(var context: Context, private var chatList: ArrayList<Chat>, p
         } else{
             1
         }
-
-
     }
 
     class ViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {

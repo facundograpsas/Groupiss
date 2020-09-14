@@ -1,15 +1,20 @@
 package com.example.groupis.activities.main
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
+import com.example.groupis.activities.chat.ChatActivity
 import com.example.groupis.activities.main.adapters.GroupAdapter
 import com.example.groupis.activities.main.adapters.MyGroupAdapter
 import com.example.groupis.activities.profile.UsernameCallback
 import com.example.groupis.models.Chat
 import com.example.groupis.models.Group
+import com.example.groupis.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -52,27 +57,20 @@ class GroupViewModel : ViewModel() {
             })
     }
 
-    fun getPublicGroups(groups : ArrayList<Group>, viewModel : UserViewModel, mContext : Context, recyclerGroupList : RecyclerView){
+    fun getPublicGroups(groups : ArrayList<Group>, viewModel : UserViewModel, mContext : Context, recyclerGroupList : RecyclerView, groupViewModel: GroupViewModel){
         lateinit var groupAdapter :GroupAdapter
-        val dbRef = FirebaseDatabase.getInstance().reference.child("Groups").addValueEventListener(
+        FirebaseDatabase.getInstance().reference.child("Groups").addValueEventListener(
             object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    Log.d("DEBUG", "EJECUTATRES")
                     groups.clear()
                     for (p0 in snapshot.children) {
                         val userList = p0.child("users")
                         val group = p0.getValue(Group::class.java)
                         group!!.setUserSize(userList.childrenCount.toInt())
                         groups.add(group!!)
-                        Log.d("DEBUG", "IN FOR")
                     }
-                    Log.d("DEBUG", "POST FOR")
                     if (viewModel.getUser().value != null) {
-                        println("User: " + viewModel.getUser().value)
-//                        println(context)
-                        println(mContext)
-                        println(groups)
-                        groupAdapter = GroupAdapter(mContext, groups, viewModel.getUser().value!!)
+                        groupAdapter = GroupAdapter(mContext, groups, viewModel.getUser().value!!, groupViewModel)
                         recyclerGroupList.adapter = groupAdapter
                     }
                 }
@@ -99,15 +97,12 @@ class GroupViewModel : ViewModel() {
                     }
                 }
                 if(viewModel.getUser().value!=null) {
-                    println("User: "+viewModel.getUser().value)
-//                    println(context)
-                    println(myGroups)
                     groupAdapter = MyGroupAdapter(mContext, myGroups, viewModel.getUser().value!!, groupViewModel)
                     recyclerView.adapter = groupAdapter
                 }
             }
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                error.code
             }
         })
     }
@@ -139,6 +134,55 @@ class GroupViewModel : ViewModel() {
             }
             override fun onCancelled(error: DatabaseError) {
 
+            }
+        })
+    }
+
+
+    fun onPublicGroupClick(mContext : Context, user : User, userUID : String, group : Group){
+        val ref = FirebaseDatabase.getInstance().reference.child("Groups").child(group.getTitle()).child("users").child(userUID)
+        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.exists()){
+                    var intent = Intent(mContext, ChatActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    intent.putExtra("groupName", group.getTitle())
+                    intent.putExtra("username", user.getUsername())
+                    mContext.startActivity(intent)
+                }
+                else{
+                    AlertDialog.Builder(mContext).setTitle("Deseas unirte a el grupo \"${group.getTitle()}\"?")
+                        .setPositiveButton("Unirse al grupo"){_, _ ->
+                            val hashMap = HashMap<String, Any>()
+                            hashMap["userdata"] = user!!
+                            ref.updateChildren(hashMap)
+                            Toast.makeText(mContext, "Te has unido a \"${group.getTitle()}\"", Toast.LENGTH_LONG).show()
+                        }.setNegativeButton("Cancelar"){dialog, _ ->
+                            dialog.cancel()
+                        }.show()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
+    }
+
+    fun onMyGroupClick(mContext: Context, user: User, userUID: String, group: Group){
+        val ref = FirebaseDatabase.getInstance().reference.child("Groups").child(group.getTitle()).child("users").child(userUID)
+        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.exists()){
+                    var intent = Intent(mContext, ChatActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    intent.putExtra("groupName", group.getTitle())
+                    intent.putExtra("username", user.getUsername())
+                    mContext.startActivity(intent)
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
             }
         })
     }

@@ -85,29 +85,6 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-
-//    private fun retrieveUser(viewModel: UserViewModel) {
-//        if (FirebaseAuth.getInstance().currentUser != null) {
-//            val ref = FirebaseDatabase.getInstance().reference.child("Users")
-//                .child(FirebaseAuth.getInstance().currentUser!!.uid)
-//            ref.addValueEventListener(object : ValueEventListener {
-//                override fun onDataChange(snapshot: DataSnapshot) {
-//                    if (snapshot.exists()) {
-//                        user = snapshot.getValue(User::class.java)!!
-//                        viewModel.setUser(user)
-//                        viewModel.setUserLoaded(true)
-//                    }
-//                }
-//
-//                override fun onCancelled(error: DatabaseError) {
-//                }
-//            })
-//            viewModel.user.observe(this, Observer { user ->
-//                profileName.text = user.getUsername()
-//            })
-//        }
-//    }
-
     private fun retrieveUserr(viewModel : UserViewModel) {
         if (FirebaseAuth.getInstance().currentUser != null) {
             viewModel.retrieveUser()

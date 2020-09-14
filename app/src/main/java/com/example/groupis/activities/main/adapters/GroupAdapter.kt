@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.groupis.R
 import com.example.groupis.activities.chat.ChatActivity
+import com.example.groupis.activities.main.GroupViewModel
 import com.example.groupis.activities.main.MainActivity
 import com.example.groupis.activities.main.UserViewModel
 import com.example.groupis.models.Group
@@ -31,10 +32,11 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.startCoroutine
 
-class GroupAdapter(mContext : Context, mGroupList : List<Group>, private val user: User) : RecyclerView.Adapter<GroupAdapter.ViewHolder>() {
+class GroupAdapter(mContext : Context, mGroupList : List<Group>, private val user: User, groupViewModel: GroupViewModel) : RecyclerView.Adapter<GroupAdapter.ViewHolder>() {
 
     private val mContext : Context = mContext
     private val mGroupList : List<Group> = mGroupList
+    private val groupViewModel = groupViewModel
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
         val view : View = LayoutInflater.from(mContext).inflate(R.layout.group_item_layout, viewGroup, false)
@@ -45,7 +47,6 @@ class GroupAdapter(mContext : Context, mGroupList : List<Group>, private val use
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val group : Group? = mGroupList[position]
-//        val membersText = group!!.getUsers().size.toString()+" miembros"
         holder.groupTitle.text = group!!.getTitle()
         holder.groupImage = group.getPicture()
         val members = group.getSize().toString()
@@ -55,47 +56,11 @@ class GroupAdapter(mContext : Context, mGroupList : List<Group>, private val use
         else{
             holder.groupMembers.text = "$members Miembros"
         }
-//        holder.groupMembers.text = membersText
         holder.itemView.setOnClickListener {
 
             it.isClickable = false
-
             val userUID = FirebaseAuth.getInstance().currentUser!!.uid
-
-            val ref = FirebaseDatabase.getInstance().reference.child("Groups").child(group.getTitle()).child("users").child(userUID)
-            ref.addListenerForSingleValueEvent(object : ValueEventListener{
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if(snapshot.exists()){
-                        println("YENDO AL GROUP ACTIVITY CHAT")
-                        var intent = Intent(mContext, ChatActivity::class.java)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        intent.putExtra("groupName", group.getTitle())
-                        intent.putExtra("username", user.getUsername())
-                        mContext.startActivity(intent)
-
-
-                    }
-                    else{
-                        println("CTXT:"+mContext)
-                        println("CTXT:"+mContext.applicationContext)
-                        println("EXCELENTE PAPA")
-                        AlertDialog.Builder(mContext).setTitle("Deseas unirte a el grupo \"${group.getTitle()}\"?")
-                            .setPositiveButton("Unirse al grupo"){_, _ ->
-                                val hashMap = HashMap<String, Any>()
-                                 hashMap["userdata"] = user!!
-                                ref.updateChildren(hashMap)
-                                Toast.makeText(mContext, "Te has unido a \"${group.getTitle()}\"", Toast.LENGTH_LONG).show()
-                            }.setNegativeButton("Cancelar"){dialog, _ ->
-                                dialog.cancel()
-                            }.show()
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
-                }
-            })
-
+            groupViewModel.onPublicGroupClick(mContext, user, userUID, group)
             CoroutineScope(Dispatchers.Main).launch {
                 suspend {
                     println("QUE ONDA VATO")
@@ -113,13 +78,11 @@ class GroupAdapter(mContext : Context, mGroupList : List<Group>, private val use
         return mGroupList.size
     }
 
-
-
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
         var groupTitle : TextView = itemView.findViewById(R.id.group_layout_title)
         var groupImage : CircleImageView? = itemView.findViewById(R.id.group_layout_profile_picture)
         var groupMembers : TextView = itemView.findViewById(R.id.group_layout_members)
-        var  groupInfo : ImageView = itemView.findViewById(R.id.group_layout_info)
+        var groupInfo : ImageView = itemView.findViewById(R.id.group_layout_info)
 
     }
 }

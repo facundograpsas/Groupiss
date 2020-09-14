@@ -41,8 +41,6 @@ class MyGroupAdapter(private val mContext : Context, private val mGroupList : Ar
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val group = mGroupList[position]
-//        groupViewModel.getLastMessageFromData(group.getTitle())
-//        println(groupViewModel.lastMessage.value)
 
         groupViewModel.getLastMessage(object : LastMessageCallback {
             override fun onCallback(value: Chat) {
@@ -56,25 +54,8 @@ class MyGroupAdapter(private val mContext : Context, private val mGroupList : Ar
         holder.itemView.setOnClickListener {
 
             it.isClickable = false
-
             val userUID = FirebaseAuth.getInstance().currentUser!!.uid
-
-            val ref = FirebaseDatabase.getInstance().reference.child("Groups").child(group.getTitle()).child("users").child(userUID)
-            ref.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if(snapshot.exists()){
-//                        println("YENDO AL GROUP ACTIVITY CHAT")
-                        var intent = Intent(mContext, ChatActivity::class.java)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        intent.putExtra("groupName", group.getTitle())
-                        intent.putExtra("username", user.getUsername())
-                        mContext.startActivity(intent)
-                    }
-                }
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
-                }
-            })
+            groupViewModel.onMyGroupClick(mContext, user, userUID, group)
             CoroutineScope(Dispatchers.Main).launch {
                 suspend {
 //                    println("QUE ONDA VATO")
