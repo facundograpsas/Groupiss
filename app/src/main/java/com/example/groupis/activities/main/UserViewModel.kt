@@ -46,8 +46,12 @@ class UserViewModel : ViewModel() {
                 .child(FirebaseAuth.getInstance().currentUser!!.uid)
             ref.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
+                    println("Activatres")
                     if (snapshot.exists()) {
+                        println("Existe moy bien"+snapshot.value)
                         user = snapshot.getValue(User::class.java)!!
+                        println("FROM VM: "+user.getNameId())
+                        println("FROM VM: "+user.getEmail())
                         setUser(user)
                         setUserLoaded(true)
                     }

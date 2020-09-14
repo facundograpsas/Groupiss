@@ -49,7 +49,8 @@
         android:layout_below="@id/my_group_layout_title"
         android:layout_alignStart="@id/my_group_layout_title"
         android:layout_marginTop="3dp"
-        android:text="Facundini:QUE GATOSSSSSS"
+        android:text="Facundini:QUE GATOasdaskajshdkSSSSSS"
+        android:layout_toStartOf="@id/my_group_layout_last_message_time"
         android:lines="1">
     </TextView>
 

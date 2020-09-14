@@ -84,13 +84,14 @@ class MainActivity : AppCompatActivity() {
             newFragment.show(supportFragmentManager, "New Public Group Dialog")
         }
 
+        viewModel.user.observe(this, Observer { user ->
+            profileName.text = user.getNameId()
+        })
+
     }
     private fun retrieveUserr(viewModel : UserViewModel) {
         if (FirebaseAuth.getInstance().currentUser != null) {
             viewModel.retrieveUser()
-            viewModel.user.observe(this, Observer { user ->
-                profileName.text = user.getUsername()
-            })
         }
     }
 

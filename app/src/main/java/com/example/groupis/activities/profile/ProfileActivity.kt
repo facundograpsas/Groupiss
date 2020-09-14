@@ -29,20 +29,15 @@ class ProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
 
+        val viewModel : UserProfileViewModel by viewModels()
         myPrefs = getSharedPreferences("prefs", MODE_PRIVATE)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         profileName = findViewById(R.id.profile_name_text)
         profileName.text = intent.getStringExtra("username")
+
         if(profileName.text==null){
-            FirebaseDatabase.getInstance().reference.child("Users").child(FirebaseAuth.getInstance().currentUser!!.uid)
-                .addListenerForSingleValueEvent(object : ValueEventListener{
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        user = snapshot.getValue(User::class.java)!!
-                    }
-                    override fun onCancelled(error: DatabaseError) {
-                    }
-                })
-            profileName.text = user.getUsername()
+            viewModel.retrieveUser()
+            profileName.text = user.getNameId()
         }
 
         editUsername = findViewById(R.id.edit_username)
@@ -50,7 +45,6 @@ class ProfileActivity : AppCompatActivity() {
         editUsername.setOnClickListener {
             changeUsernameDialog() }
 
-        val viewModel : UserProfileViewModel by viewModels()
         changeUsernameResult(viewModel)
     }
 
@@ -80,7 +74,6 @@ class ProfileActivity : AppCompatActivity() {
         if(this.resources.configuration.orientation==Configuration.ORIENTATION_PORTRAIT){
             profileImage.scaleX = 1.0F
             profileImage.scaleY = 1.0F
-
         }
         else if(this.resources.configuration.orientation==Configuration.ORIENTATION_LANDSCAPE){
             profileImage.scaleX = 0.5F

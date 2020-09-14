@@ -5,15 +5,15 @@ class User{
  private var uid : String? = null
  private var name : String? = null
  private var email : String? = null
- private var username : String? = null
+ private var nameId : String? = null
 
   constructor()
-  constructor(uid: String, name: String, email:String, username : String){
+  constructor(uid: String, name: String, email:String, nameId : String){
 
     this.uid = uid
     this.name = name
     this.email = email
-    this.username = username
+    this.nameId = nameId
    }
 
    fun getUid() : String?{
@@ -40,12 +40,12 @@ class User{
    this.email=email
   }
 
-  fun getUsername() : String?{
-   return username
+  fun getNameId() : String?{
+   return nameId
   }
 
-  fun setUsername(username : String?){
-   this.username=username
+  fun setNameId(nameId : String?){
+   this.nameId=nameId
   }
 
  }

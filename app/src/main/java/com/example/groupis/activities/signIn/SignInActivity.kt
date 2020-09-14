@@ -68,7 +68,7 @@ class SignInActivity : AppCompatActivity() {
     }
 
     private fun toMainActivity(){
-        val refUser = FirebaseDatabase.getInstance().reference.child("Users").child(FirebaseAuth.getInstance().currentUser!!.uid).child("username")
+        val refUser = FirebaseDatabase.getInstance().reference.child("Users").child(FirebaseAuth.getInstance().currentUser!!.uid).child("nameId")
         refUser.addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if(!snapshot.exists()){

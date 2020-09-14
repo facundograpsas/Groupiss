@@ -8,4 +8,5 @@ class SignInViewModel : ViewModel() {
     val newUser: MutableLiveData<Boolean> by lazy {
         MutableLiveData<Boolean>()
     }
+
 }

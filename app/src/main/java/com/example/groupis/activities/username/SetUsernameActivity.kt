@@ -32,39 +32,15 @@ class SetUsernameActivity : AppCompatActivity() {
         setContentView(R.layout.activity_set_username)
         val viewModel : UsernameViewModel by viewModels()
         viewModel.isValid.value = false
-//        viewModel.isFree.value = false
-
 
         usernameAvailable = findViewById(R.id.set_username_warning)
         usernameEditText = findViewById(R.id.username_activity_username)
 
         usernameValueAndValid(viewModel)
         saveUsernameToDB(viewModel)
-        checkUsernameIsAvailable(viewModel)
+        viewModel.checkUsernameAvailable(this@SetUsernameActivity)
         updateUIOnUsernameAvailable(viewModel)
         updateUIOnUsernameValid(viewModel)
-    }
-
-    private fun checkUsernameIsAvailable(viewModel: UsernameViewModel) {
-        viewModel.userName.observe(this, Observer { username ->
-            val refUsername =
-                FirebaseDatabase.getInstance().reference.child("Users").orderByChild("username")
-                    .equalTo(username)
-            refUsername.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        viewModel.isFree.value = false
-                        println("EXISTE")
-                    } else {
-                        viewModel.isFree.value = true
-                        println("NO EXISTE")
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                }
-            })
-        })
     }
 
     private fun updateUIOnUsernameValid(viewModel: UsernameViewModel) {
@@ -105,30 +81,16 @@ class SetUsernameActivity : AppCompatActivity() {
     }
 
     private fun saveUsernameToDB(viewModel: UsernameViewModel) {
-        val refUser = FirebaseDatabase.getInstance().reference.child("Users")
-            .child(FirebaseAuth.getInstance().currentUser!!.uid)
         acceptButton = findViewById(R.id.set_username_button)
         acceptButton.setOnClickListener {
             if (viewModel.isFree.value!! && viewModel.isValid.value!!) {
-                refUser.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        if (snapshot.exists()) {
-                            val userHashMap = HashMap<String, Any>()
-                            userHashMap["username"] = viewModel.userName.value!!
-                            refUser.updateChildren(userHashMap)
-                        }
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {
-                    }
-                })
+                viewModel.saveUsernameToDB()
                 val prefs = getSharedPreferences("prefs", MODE_PRIVATE)!!.edit()
                 prefs.putString(FirebaseAuth.getInstance().currentUser!!.uid, viewModel.userName.value)
                 prefs.apply()
                 val intent = Intent(this@SetUsernameActivity, MainActivity::class.java)
                 startActivity(intent)
                 finish()
-
             }
         }
     }

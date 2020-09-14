@@ -115,7 +115,7 @@ class GroupViewModel : ViewModel() {
                 if(snapshot.exists()){
                     callback.onCallback("EXISTE")
                 }else{
-                    if(groupName.toString().length<4 || groupName.length>16){
+                    if(groupName.length<4 || groupName.length>16){
                         callback.onCallback("LARGO INVALIDO")
                     }
                     else {
@@ -147,7 +147,7 @@ class GroupViewModel : ViewModel() {
                     var intent = Intent(mContext, ChatActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     intent.putExtra("groupName", group.getTitle())
-                    intent.putExtra("username", user.getUsername())
+                    intent.putExtra("username", user.getNameId())
                     mContext.startActivity(intent)
                 }
                 else{
@@ -177,7 +177,7 @@ class GroupViewModel : ViewModel() {
                     var intent = Intent(mContext, ChatActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     intent.putExtra("groupName", group.getTitle())
-                    intent.putExtra("username", user.getUsername())
+                    intent.putExtra("username", user.getNameId())
                     mContext.startActivity(intent)
                 }
             }

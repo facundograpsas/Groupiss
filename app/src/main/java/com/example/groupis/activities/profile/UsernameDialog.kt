@@ -27,21 +27,24 @@ class UsernameDialog(private var username: String) : DialogFragment() {
             val dialogView = inflater.inflate(R.layout.dialog_change_username, null)
             editText = dialogView.findViewById<EditText>(R.id.alert_dialog_username)
             val viewModel : UserProfileViewModel by activityViewModels()
-            println(it)
             builder.setView(dialogView)
                 // Add action buttons
                 .setPositiveButton("Aceptar"
                 ) { _, _ ->
-                    readData(object : UsernameCallback {
+                    viewModel.changeUsername(editText.text.toString(), object: UsernameCallback{
                         override fun onCallback(value: String) {
-                            when (value) {
-                                "EXISTE" -> { viewModel.setValid("EXISTE") }
-                                "NO EXISTE" -> { viewModel.setValid("NO EXISTE") }
-                                "LARGO INVALIDO" -> { viewModel.setValid("LARGO INVALIDO") }
-                                "ESPACIO INVALIDO" -> { viewModel.setValid("ESPACIO INVALIDO")}
-                            }
+                            println(value)
+                            viewModel.setValid(value)
                         }
                     })
+
+//                    readData(object  : UsernameCallback{
+//                        override fun onCallback(value: String) {
+//                            println(value)
+//                        }
+//
+//                    })
+
                     viewModel.setUsername(editText.text.toString())
                 }
                 .setNegativeButton("Cancelar"
@@ -54,35 +57,35 @@ class UsernameDialog(private var username: String) : DialogFragment() {
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
-    private fun readData(callback: UsernameCallback){
-
-        val dbRef = FirebaseDatabase.getInstance().reference.child("Users").orderByChild("username").equalTo(editText.text.toString())
-        dbRef.addListenerForSingleValueEvent(object : ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if(snapshot.exists()){
-                    callback.onCallback("EXISTE")
-                }else{
-                    if(editText.text.toString().length<4 || editText.text.toString().length>16){
-                        callback.onCallback("LARGO INVALIDO")
-                    }
-                    else if(editText.text.toString().contains(" ")){
-                        callback.onCallback("ESPACIO INVALIDO")
-                    }
-                    else {
-                        val userRef = FirebaseDatabase.getInstance().reference.child("Users")
-                            .child(FirebaseAuth.getInstance().currentUser!!.uid)
-                        val hashMap = HashMap<String, Any>()
-                        hashMap["username"] = editText.text.toString()
-                        userRef.updateChildren(hashMap)
-                        callback.onCallback("NO EXISTE")
-                    }
-                }
-            }
-            override fun onCancelled(error: DatabaseError) {
-
-            }
-        })
-    }
+//    private fun readData(callback: UsernameCallback){
+//
+//        val dbRef = FirebaseDatabase.getInstance().reference.child("Users").orderByChild("username").equalTo(editText.text.toString())
+//        dbRef.addListenerForSingleValueEvent(object : ValueEventListener{
+//            override fun onDataChange(snapshot: DataSnapshot) {
+//                if(snapshot.exists()){
+//                    callback.onCallback("EXISTE")
+//                }else{
+//                    if(editText.text.toString().length<4 || editText.text.toString().length>16){
+//                        callback.onCallback("LARGO INVALIDO")
+//                    }
+//                    else if(editText.text.toString().contains(" ")){
+//                        callback.onCallback("ESPACIO INVALIDO")
+//                    }
+//                    else {
+//                        val userRef = FirebaseDatabase.getInstance().reference.child("Users")
+//                            .child(FirebaseAuth.getInstance().currentUser!!.uid)
+//                        val hashMap = HashMap<String, Any>()
+//                        hashMap["username"] = editText.text.toString()
+//                        userRef.updateChildren(hashMap)
+//                        callback.onCallback("NO EXISTE")
+//                    }
+//                }
+//            }
+//            override fun onCancelled(error: DatabaseError) {
+//
+//            }
+//        })
+//    }
 }
 
 interface UsernameCallback{
