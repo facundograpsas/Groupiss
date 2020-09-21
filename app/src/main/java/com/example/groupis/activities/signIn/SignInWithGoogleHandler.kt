@@ -1,12 +1,8 @@
 package com.example.groupis.activities.signIn
 
 import android.app.Activity
-import android.renderscript.Sampler
 import android.util.Log
 import android.widget.Toast
-import com.example.groupis.models.User
-import com.google.android.gms.auth.api.Auth
-import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task

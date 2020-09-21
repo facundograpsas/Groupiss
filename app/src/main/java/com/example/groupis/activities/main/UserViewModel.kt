@@ -2,7 +2,6 @@ package com.example.groupis.activities.main
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import com.example.groupis.models.User
 import com.google.firebase.auth.FirebaseAuth

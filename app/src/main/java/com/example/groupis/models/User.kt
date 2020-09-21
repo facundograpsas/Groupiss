@@ -1,6 +1,8 @@
 package com.example.groupis.models
 
-class User{
+import java.io.Serializable
+
+class User : Serializable{
 
  private var uid : String? = null
  private var name : String? = null

@@ -18,7 +18,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            android:background="@android:color/holo_blue_light"
+            android:background="@color/colorPrimaryDark"
             >
 
             <RelativeLayout
@@ -35,6 +35,7 @@
                     android:gravity="center"
                     android:textSize="26sp"
                     android:textStyle="bold"
+                    android:textColor="@android:color/white"
                     >
 
                 </TextView>
@@ -91,15 +92,17 @@
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
-            app:tabTextColor="@android:color/white"/>
+            android:background="@color/colorPrimaryNew"
+            app:tabTextColor="@android:color/white"
+            app:tabSelectedTextColor="@android:color/black" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:background="@color/almostWhite"/>
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -124,11 +127,12 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:alpha="0"
-        android:backgroundTint="@android:color/darker_gray"
+        android:backgroundTint="@color/publicGroupButton"
         android:scaleX="0.85"
         android:scaleY="0.85"
         app:borderWidth="0dp"
-        app:srcCompat="@drawable/public_icon">
+        app:srcCompat="@drawable/public_icon"
+        android:transitionName="add_public_transition">
 
     </com.google.android.material.floatingactionbutton.FloatingActionButton>
 
@@ -141,7 +145,8 @@
         android:backgroundTint="@android:color/holo_orange_light"
         android:tint="@android:color/white"
         app:srcCompat="@drawable/add"
-        app:borderWidth="0dp">
+        app:borderWidth="0dp"
+        android:visibility="visible">
 
     </com.google.android.material.floatingactionbutton.FloatingActionButton>
 

@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentPagerAdapter
 import com.example.groupis.R
 import com.example.groupis.activities.main.fragments.LobbyFragment
 import com.example.groupis.activities.main.fragments.MyGroupsFragment
+import com.example.groupis.activities.main.fragments.NewGroupFragment
 
 private val TAB_TITLES = arrayOf(
         R.string.my_groups,

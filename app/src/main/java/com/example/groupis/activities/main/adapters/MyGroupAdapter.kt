@@ -1,33 +1,29 @@
 package com.example.groupis.activities.main.adapters
 
-import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.example.groupis.R
-import com.example.groupis.activities.chat.ChatActivity
 import com.example.groupis.activities.main.GroupViewModel
 import com.example.groupis.activities.main.LastMessageCallback
+import com.example.groupis.activities.main.UnseenMessagesCallback
 import com.example.groupis.models.Chat
 import com.example.groupis.models.Group
 import com.example.groupis.models.User
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.w3c.dom.Text
 
 class MyGroupAdapter(private val mContext : Context, private val mGroupList : ArrayList<Group>, val user : User, private val groupViewModel: GroupViewModel) : RecyclerView.Adapter<MyGroupAdapter.ViewHolder>() {
 
@@ -42,17 +38,42 @@ class MyGroupAdapter(private val mContext : Context, private val mGroupList : Ar
 
         val group = mGroupList[position]
 
-        groupViewModel.getLastMessage(object : LastMessageCallback {
+
+        println(group.getColor())
+        when(group.getColor()){
+            1 -> holder.groupProfilePicture.setImageResource(R.drawable.default_group_logo_green)
+            2 -> holder.groupProfilePicture.setImageResource(R.drawable.default_group_logo)
+            3 -> holder.groupProfilePicture.setImageResource(R.drawable.default_group_logo_green_yellowish)
+            4 -> holder.groupProfilePicture.setImageResource(R.drawable.default_group_logo_pink)
+            5 -> holder.groupProfilePicture.setImageResource(R.drawable.default_group_logo_red)
+        }
+
+
+        if(mGroupList.size>=1){
+            groupViewModel.unseenMessages(group.getTitle(), object : UnseenMessagesCallback {
+                override fun onCallback(unseenMessages: String) {
+                    holder.groupUnseenMessages.text = unseenMessages
+                    if(holder.groupUnseenMessages.text == "0"){
+                        holder.groupUnseenMessagesCircle.visibility = View.GONE
+                    }
+                    else{
+                        holder.groupUnseenMessagesCircle.visibility = View.VISIBLE
+                    }
+                }
+            })
+        }
+
+
+        groupViewModel.getLastMessage(group.getTitle(), object : LastMessageCallback {
             override fun onCallback(value: Chat) {
                 val username = value.getUsername()
                 holder.groupLastMessage.text = username+":"+value.getText()
                 holder.groupLastMessageTime.text = value.getHour()
-            } }, group.getTitle())
+            }})
 
         holder.groupTitle.text = group.getTitle()
 
         holder.itemView.setOnClickListener {
-
             it.isClickable = false
             val userUID = FirebaseAuth.getInstance().currentUser!!.uid
             groupViewModel.onMyGroupClick(mContext, user, userUID, group)
@@ -78,6 +99,9 @@ class MyGroupAdapter(private val mContext : Context, private val mGroupList : Ar
         val groupPicture = itemView.findViewById<ImageView>(R.id.my_group_layout_profile_picture)
         val groupLastMessage = itemView.findViewById<TextView>(R.id.my_group_layout_last_message)
         val groupLastMessageTime = itemView.findViewById<TextView>(R.id.my_group_layout_last_message_time)
+        val groupUnseenMessages = itemView.findViewById<TextView>(R.id.my_group_layout_unseen_messages)
+        var groupProfilePicture : CircleImageView = itemView.findViewById(R.id.my_group_layout_profile_picture)
+        val groupUnseenMessagesCircle = itemView.findViewById<FrameLayout>(R.id.asdasd)
 
 
     }

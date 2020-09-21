@@ -1,36 +1,25 @@
 package com.example.groupis.activities.main.adapters
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.groupis.R
-import com.example.groupis.activities.chat.ChatActivity
 import com.example.groupis.activities.main.GroupViewModel
-import com.example.groupis.activities.main.MainActivity
-import com.example.groupis.activities.main.UserViewModel
+import com.example.groupis.activities.main.UnseenMessagesCallback
 import com.example.groupis.models.Group
 import com.example.groupis.models.User
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.coroutineContext
-import kotlin.coroutines.startCoroutine
+
 
 class GroupAdapter(mContext : Context, mGroupList : List<Group>, private val user: User, groupViewModel: GroupViewModel) : RecyclerView.Adapter<GroupAdapter.ViewHolder>() {
 
@@ -46,9 +35,27 @@ class GroupAdapter(mContext : Context, mGroupList : List<Group>, private val use
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
+
         val group : Group? = mGroupList[position]
         holder.groupTitle.text = group!!.getTitle()
         holder.groupImage = group.getPicture()
+
+        when(group.getColor()){
+            1 -> holder.groupBackgroundColor.setImageResource(R.drawable.default_group_logo_green)
+            2 -> holder.groupBackgroundColor.setImageResource(R.drawable.default_group_logo)
+            3 -> holder.groupBackgroundColor.setImageResource(R.drawable.default_group_logo_green_yellowish)
+            4 -> holder.groupBackgroundColor.setImageResource(R.drawable.default_group_logo_pink)
+            5 -> holder.groupBackgroundColor.setImageResource(R.drawable.default_group_logo_red)
+        }
+
+
+//        groupViewModel.unseenMessages(group!!.getTitle(), object : UnseenMessagesCallback {
+//            override fun onCallback(unseenMessages: String) {
+//                println(unseenMessages)
+//            }
+//        })
+
+
         val members = group.getSize().toString()
         if(members=="1"){
             holder.groupMembers.text = "$members Miembro"
@@ -83,6 +90,7 @@ class GroupAdapter(mContext : Context, mGroupList : List<Group>, private val use
         var groupImage : CircleImageView? = itemView.findViewById(R.id.group_layout_profile_picture)
         var groupMembers : TextView = itemView.findViewById(R.id.group_layout_members)
         var groupInfo : ImageView = itemView.findViewById(R.id.group_layout_info)
+        var groupBackgroundColor : CircleImageView = itemView.findViewById(R.id.group_layout_profile_picture)
 
     }
 }

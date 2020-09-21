@@ -38,7 +38,18 @@
         android:layout_height="50dp"
         android:id="@+id/loadingProgress"
         android:indeterminate="true"
-        android:visibility="invisible"/>
+        android:visibility="gone" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/loading_animation"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        app:lottie_url="https://assets9.lottiefiles.com/temp/lf20_HlZS4o.json"
+        android:visibility="invisible"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true">
+
+    </com.airbnb.lottie.LottieAnimationView>
 
 
 </LinearLayout>

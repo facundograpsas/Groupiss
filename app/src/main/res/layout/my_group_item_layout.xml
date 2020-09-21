@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="?android:attr/selectableItemBackground"
-    android:layout_margin="5dp"
-    >
+    android:layout_margin="5dp">
 
     <View
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="300dp"
+        android:layout_width="wrap_content"
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"
         android:alpha="0.3"
-        android:layout_centerHorizontal="true">
+        android:layout_toEndOf="@id/my_group_layout_profile_picture"
+        android:layout_alignParentEnd="true">
     </View>
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -49,9 +48,9 @@
         android:layout_below="@id/my_group_layout_title"
         android:layout_alignStart="@id/my_group_layout_title"
         android:layout_marginTop="3dp"
-        android:text="Facundini:QUE GATOasdaskajshdkSSSSSS"
         android:layout_toStartOf="@id/my_group_layout_last_message_time"
-        android:lines="1">
+        android:lines="1"
+        android:ellipsize="end">
     </TextView>
 
 
@@ -72,6 +71,57 @@
         android:layout_height="1dp"
         >
     </View>
+
+    <TextView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_toLeftOf="@id/my_group_layout_last_message_time"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/plain_circle"
+        android:text="12"
+        android:textColor="@android:color/white"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:paddingBottom="5dp"
+        android:visibility="gone"
+        android:layout_alignBottom="@id/my_group_layout_last_message"
+        android:backgroundTint="@color/colorGreen">
+    </TextView>
+
+    <FrameLayout
+        android:id="@+id/asdasd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/my_group_layout_last_message_time"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="5dp"
+        android:visibility="gone">
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/plain_circle"
+            android:backgroundTint="@color/colorGreen"
+            >
+        </de.hdodenhof.circleimageview.CircleImageView>
+
+        <TextView
+            android:id="@+id/my_group_layout_unseen_messages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="32"
+            android:textColor="@color/almostWhite"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:textStyle="bold">
+        </TextView>
+
+    </FrameLayout>
+
+
+
+
+
 
 
 </RelativeLayout>

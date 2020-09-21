@@ -1,39 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="3dp"
+    android:layout_margin="2dp"
     >
+
     <FrameLayout
+        android:id="@+id/chat_sender_frameLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/chat_hour">
+        android:layout_toEndOf="@id/chat_hour"
+        android:layout_below="@id/chat_day"
+
+        >
 
         <TextView
             android:id="@+id/chat_sender_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
-            android:layout_toRightOf="@id/chat_hour"
             android:background="@drawable/chat_bubble_sender"
             android:padding="7dp"
-            android:text="akaljsdklasjdklasjdlaksjklasjdklasjdklasjdklasjdlkjasdklsadjkaa"
-            android:textColor="@android:color/black"
-            android:textSize="16sp">
+            android:text="akaljsdklaaskljdlksadjjdakslldksjalkajsdklasjdlkasjd
 
+            lkajs
+            sjdklasjdlaksjklasjdklasjdklasjdklasjdlkjasdklsadjkaa"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:elevation="1dp"
+            android:layout_margin="1dp">
         </TextView>
 
     </FrameLayout>
 
 
     <TextView
+        android:layout_centerInParent="true"
         android:id="@+id/chat_hour"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
         android:layout_marginStart="1dp"
         android:layout_marginLeft="5dp"
         android:layout_marginTop="-5dp"
@@ -43,6 +52,8 @@
         android:text="15:30 am"
         android:textSize="11sp"
         android:alpha="0.65"
+        android:layout_below="@id/chat_day"
+        android:textAlignment="center"
         >
 
     </TextView>
@@ -56,6 +67,18 @@
             android:layout_marginStart="7dp"
             android:visibility="gone">
         </TextView>
+
+    <TextView
+        android:id="@+id/chat_day"
+        android:text="15 DE SEPTIEMBRE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="10dp"
+        >
+    </TextView>
 
 
 </RelativeLayout>

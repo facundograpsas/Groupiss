@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#2774AF</color>
-<color name="colorPrimaryDark">#2774AF</color>
-<color name="colorAccent">#131313</color>
+    <color name="colorPrimary">#4FB3FF</color>
+    <color name="colorPrimaryDark">#2774AF</color>
+    <color name="colorPrimaryNew">#65D3FF</color>
+    <color name="colorAccent">#131313</color>
     <color name="colorRed">#C31717</color>
     <color name="colorGreen">#21C614</color>
+    <color name="colorToolbar">#1892D3</color>
+    <color name="colorTitle">#224397</color>
+    <color name="almostWhite">#F6F6F6</color>
+    <color name="chatBackground">#F4F4F4</color>
+    <color name="publicGroupButton">#E1B07C</color>
+    <color name="newGroupBackground">#FFE1C1</color>
+
+
+
 </resources>

@@ -13,14 +13,15 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.fragment.app.activityViewModels
+import androidx.core.view.get
 import androidx.lifecycle.Observer
 import androidx.viewpager.widget.ViewPager
 import com.example.groupis.activities.profile.ProfileActivity
 import com.example.groupis.R
 import com.example.groupis.activities.main.adapters.SectionsPagerAdapter
+import com.example.groupis.activities.main.fragments.NewGroupFragment
 import com.example.groupis.activities.main.fragments.NewPublicGroupDialog
-import com.example.groupis.activities.profile.UsernameDialog
+import com.example.groupis.activities.newgroup.NewGroupActivity
 import com.example.groupis.activities.signIn.SignInActivity
 import com.example.groupis.activities.username.SetUsernameActivity
 import com.example.groupis.models.User
@@ -28,12 +29,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
-import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import android.util.Pair as UtilPair
 
 
@@ -49,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var profileImage : ImageView
     private lateinit var user : User
     private lateinit var myPrefs : SharedPreferences
+    private lateinit var viewPager : ViewPager
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
-        val viewPager: ViewPager = findViewById(R.id.view_pager)
+        viewPager = findViewById(R.id.view_pager)
         viewPager.adapter = sectionsPagerAdapter
         val tabs: TabLayout = findViewById(R.id.tabs)
         tabs.setupWithViewPager(viewPager)
@@ -79,16 +76,31 @@ class MainActivity : AppCompatActivity() {
         onProfileClick()
         redirectNewUser()
 
+        onAddPublicGroupClick(viewModel)
+
+    }
+
+    private fun onAddPublicGroupClick(viewModel: UserViewModel) {
+
         fabAddPublic.setOnClickListener {
-            val newFragment = NewPublicGroupDialog()
-            newFragment.show(supportFragmentManager, "New Public Group Dialog")
+            fabAddPublic.isClickable = false
+            val options = ActivityOptions.makeSceneTransitionAnimation(this)
+
+            //            val newFragment = NewPublicGroupDialog()
+    //            newFragment.show(supportFragmentManager, "New Public Group Dialog")
+
+    //              val newGroupFragment = NewGroupFragment.newInstance("asd", "ad")
+    //            supportFragmentManager.beginTransaction().add(R.id.view_pager, newGroupFragment).commit()
+            val intent = Intent(this@MainActivity, NewGroupActivity::class.java)
+                .apply { putExtra("user", viewModel.getUser().value) }
+            startActivity(intent, options.toBundle())
         }
 
         viewModel.user.observe(this, Observer { user ->
             profileName.text = user.getNameId()
         })
-
     }
+
     private fun retrieveUserr(viewModel : UserViewModel) {
         if (FirebaseAuth.getInstance().currentUser != null) {
             viewModel.retrieveUser()
@@ -120,14 +132,18 @@ class MainActivity : AppCompatActivity() {
                 fabAddPrivate.animate().translationY(-400F).setDuration(500).alpha(1F).withEndAction {
                     isFabClicked = true
                     fab.isClickable = true
-                }.withStartAction { fab.isClickable = false }
+                    fabAddPublic.isClickable = true
+                }.withStartAction { fab.isClickable = false
+                                    fabAddPublic.isClickable = false}
             } else {
                 fab.animate().rotation(0F)
                 fabAddPublic.animate().translationY(0F).setDuration(500).alpha(0F)
                 fabAddPrivate.animate().translationY(0F).setDuration(500).alpha(0F).withEndAction {
                     isFabClicked = false
                     fab.isClickable = true
-                }.withStartAction { fab.isClickable = false }
+                    fabAddPublic.isClickable = true
+                }.withStartAction { fab.isClickable = false
+                                    fabAddPublic.isClickable = false}
             }
         }
     }
@@ -139,7 +155,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
-            R.id.menu_logout -> logout()
+            R.id.menu_logout -> {logout()}
             R.id.menu_settings -> println("Settings")
         }
         return true
@@ -172,5 +188,12 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         goToProfile.isClickable = true
+        fabAddPublic.isClickable = true
+    }
+
+
+    override fun onBackPressed() {
+        if(viewPager.currentItem==0) { super.onBackPressed() }
+        else{ viewPager.setCurrentItem(0, true) }
     }
 }

@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.chat.ChatActivity">
+    tools:context=".activities.chat.ChatActivity"
+    android:background="@color/chatBackground">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/chat_toolbar"
@@ -32,36 +33,60 @@
         </TextView>
     </androidx.appcompat.widget.Toolbar>
 
+
+
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/chat_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/chat_toolbar"
-        android:layout_above="@id/chat_edit_text"
-        android:layout_margin="10dp">
+        android:layout_above="@id/chat_send_layout"
+        android:layout_marginLeft="5dp">
 
     </androidx.recyclerview.widget.RecyclerView>
 
-    <EditText
-        android:id="@+id/chat_edit_text"
+    <TextView
+        android:id="@+id/chat_activity_day"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="10:22"
+        android:layout_below="@id/chat_toolbar"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/chat_bubble_sender_2"
+        android:paddingHorizontal="10dp"
+        android:layout_marginTop="5dp"
+        android:elevation="3dp">
+    </TextView>
+
+
+    <RelativeLayout
+        android:id="@+id/chat_send_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@id/chat_send_arrow"
-        android:layout_margin="5dp"
-        android:inputType="textMultiLine|textShortMessage">
-    </EditText>
+        android:layout_alignParentBottom="true">
+        <EditText
+            android:id="@+id/chat_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/chat_send_arrow"
+            android:layout_margin="5dp"
+            android:inputType="textMultiLine|textShortMessage"
+            android:background="@drawable/chat_text_container"
+            android:layout_centerInParent="true"
+            android:padding="10dp"
+            android:elevation="3dp">
+        </EditText>
+        <ImageView
+            android:id="@+id/chat_send_arrow"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/arrow_send"
+            android:layout_margin="10dp"
+            android:layout_alignParentEnd="true"
+            >
+        </ImageView>
+    </RelativeLayout>
 
-    <ImageView
-        android:id="@+id/chat_send_arrow"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/arrow_send"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="10dp"
-        >
-
-    </ImageView>
 
 </RelativeLayout>

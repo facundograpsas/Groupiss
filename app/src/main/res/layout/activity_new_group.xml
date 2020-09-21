@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.newgroup.NewGroupActivity"
+    android:background="@color/almostWhite">
+
+
+<FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="220dp"
+    android:background="@color/newGroupBackground">
+
+</FrameLayout>
+    <FrameLayout
+        android:id="@+id/new_group_layout_banner"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:background="@drawable/circle"
+        android:transitionName="add_public_transition"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="20dp"
+        android:padding="25dp"
+        >
+
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/picture"
+            android:layout_gravity="center"
+            android:contentDescription="asd"
+            android:transitionName="add_public_transition"
+            >
+
+        </ImageView>
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/new_group_layout_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Crear Grupo público"
+        android:textStyle="bold"
+        android:textSize="30sp"
+        android:layout_below="@id/new_group_layout_banner"
+        android:layout_margin="5dp"
+        android:textColor="@android:color/black"
+        android:padding="10dp">
+    </TextView>
+
+
+    <TextView
+        android:id="@+id/new_group_layout_text_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Este grupo será público, aparecera en el lobby y cualquiera podrá entrar en él."
+        android:layout_below="@id/new_group_layout_title"
+        android:layout_margin="10dp">
+
+    </TextView>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/new_group_layout_set_picture_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/new_group_layout_text_description"
+            android:backgroundTint="@color/almostWhite"
+            app:borderWidth="0dp"
+            android:src="@drawable/picture"
+            android:elevation="5dp"
+            android:layout_margin="10dp">
+
+        </com.google.android.material.floatingactionbutton.FloatingActionButton>
+
+    <EditText
+        android:id="@+id/new_group_layout_editText_groupName"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_toEndOf="@id/new_group_layout_set_picture_fab"
+        android:layout_alignBottom="@id/new_group_layout_set_picture_fab"
+        android:hint="Escribe el nombre del grupo...">
+    </EditText>
+
+    <EditText
+        android:id="@+id/new_group_layout_info"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@id/new_group_layout_set_picture_fab"
+        android:layout_margin="15dp"
+        android:hint="Info del grupo... (opcional)"
+        android:inputType="textMultiLine"
+        android:ellipsize="end"
+        android:gravity="top|left"
+        android:layout_marginBottom="40dp">
+    </EditText>
+
+
+    <View
+        android:id="@+id/new_group_layout_fake_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@id/new_group_layout_info"
+        android:layout_centerHorizontal="true">
+    </View>
+
+    <Button
+        android:id="@+id/new_group_layout_back_button"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_below="@id/new_group_layout_info"
+        android:layout_toStartOf="@id/new_group_layout_fake_view"
+        android:text="VOLVEr"
+        android:background="?android:attr/selectableItemBackground"
+        android:gravity="center"
+        android:textColor="@android:color/black"
+        android:textStyle="bold">
+    </Button>
+    <Button
+        android:id="@+id/new_group_layout_create_group_button"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_below="@id/new_group_layout_info"
+        android:layout_toEndOf="@id/new_group_layout_fake_view"
+        android:text="CREAR GRUPO"
+        android:gravity="center"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:background="?android:attr/selectableItemBackground">
+    </Button>
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/new_group_layout_success_animation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:lottie_url="https://assets6.lottiefiles.com/packages/lf20_9WL4VQ.json"
+        android:layout_centerInParent="true"
+        android:visibility="visible"
+        >
+
+    </com.airbnb.lottie.LottieAnimationView>
+
+</RelativeLayout>

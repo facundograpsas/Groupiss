@@ -16,13 +16,15 @@ import com.example.groupis.activities.main.GroupViewModel
 import com.example.groupis.activities.main.UserViewModel
 import com.example.groupis.activities.main.adapters.GroupAdapter
 import com.example.groupis.models.Group
-import com.example.groupis.models.User
 
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
 class LobbyFragment : Fragment() {
+
+
+
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var recyclerGroupList : RecyclerView
@@ -35,6 +37,8 @@ class LobbyFragment : Fragment() {
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
+
+
         }
     }
 
@@ -88,4 +92,7 @@ class LobbyFragment : Fragment() {
                 }
             }
     }
+
+
+
 }

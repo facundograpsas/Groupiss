@@ -6,12 +6,18 @@ class Chat {
     private lateinit var username : String
     private lateinit var uid : String
     private var hour : String = ""
+    private var day : String = ""
+    private var key : String? = ""
+    private var timeInMillis : Long? = null
 
     constructor()
-    constructor(text : String, username : String, uid : String, hour : String){
+    constructor(text : String, username : String, uid : String, hour : String, day : String, timeInMillis : Long?){
         this.text = text
         this.username = username
         this.uid = uid
+        this.hour = hour
+        this.day = day
+        this.timeInMillis = timeInMillis
     }
 
     fun getText() : String{
@@ -46,4 +52,27 @@ class Chat {
         return hour
     }
 
+    fun setDay(day : String){
+        this.day = day
+    }
+
+    fun getDay() : String{
+        return day
+    }
+
+    fun setKey(key : String?){
+        this.key = key
+    }
+
+    fun getKey() : String?{
+        return key
+    }
+
+    fun getTimeInMillis(): Long?{
+        return timeInMillis
+    }
+
+    fun setTimeInMillis(timeInMillis: Long?){
+        this.timeInMillis = timeInMillis
+    }
 }
