@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.groupis.R
 import com.example.groupis.activities.main.GroupViewModel
 import com.example.groupis.activities.main.MainActivity
+import com.example.groupis.activities.main.MyGroupViewModel
 import com.example.groupis.activities.main.UserViewModel
 import com.example.groupis.models.Group
 import com.example.groupis.models.User
@@ -30,7 +31,7 @@ class MyGroupsFragment : Fragment() {
     private lateinit var myGroups : ArrayList<Group>
     private lateinit var mContext : Context
     private lateinit var viewModel : UserViewModel
-    private lateinit var groupViewModel: GroupViewModel
+    private lateinit var myGroupViewModel: MyGroupViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,29 +49,21 @@ class MyGroupsFragment : Fragment() {
         mContext = requireActivity().applicationContext
         val view = inflater.inflate(R.layout.fragment_my_groups, container, false)
         viewModel = ViewModelProvider(requireActivity()).get(UserViewModel::class.java)
-        groupViewModel = ViewModelProvider(requireActivity()).get(GroupViewModel::class.java)
-
+        myGroupViewModel = ViewModelProvider(requireActivity()).get(MyGroupViewModel::class.java)
         recyclerView = view.findViewById(R.id.group_mine_recycler_view)
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(context)
         myGroups = arrayListOf()
 
         viewModel.userLoaded.observe(viewLifecycleOwner, Observer {
-            retrieveMyGroups(viewModel, groupViewModel)
+            retrieveMyGroups(viewModel, myGroupViewModel)
         })
-
-//        if(myGroups.size>0){
-//            groupViewModel.refreshGroups(myGroups, viewModel, mContext, recyclerView, groupViewModel)
-//        }
-
-//        groupViewModel.sortMyGroupsByLastMessage(myGroups)
-
 
         return view
     }
 
-    private fun retrieveMyGroups(userViewModel: UserViewModel, groupViewModel: GroupViewModel){
-        groupViewModel.getMyGroups(myGroups, userViewModel, mContext, recyclerView, groupViewModel)
+    private fun retrieveMyGroups(userViewModel: UserViewModel, myGroupViewModel: MyGroupViewModel){
+        myGroupViewModel.getMyGroups(myGroups, userViewModel, mContext, recyclerView, myGroupViewModel)
     }
 
     companion object {
@@ -81,20 +74,7 @@ class MyGroupsFragment : Fragment() {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)
-
-
-//                    if(view!=null){
-//                        viewModel.userLoaded.observe(viewLifecycleOwner, Observer {
-//                            retrieveMyGroups(viewModel, groupViewModel)
-//                        })
-//                    }
-
                 }
             }
     }
-
-//    override fun onResume() {
-//        super.onResume()
-//        retrieveMyGroups(viewModel, groupViewModel)
-//    }
 }

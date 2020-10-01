@@ -50,7 +50,23 @@
         android:layout_marginTop="3dp"
         android:layout_toStartOf="@id/my_group_layout_last_message_time"
         android:lines="1"
-        android:ellipsize="end">
+        android:ellipsize="end"
+        >
+    </TextView>
+
+    <TextView
+        android:id="@+id/my_group_layout_who_is_writing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/my_group_layout_title"
+        android:layout_alignStart="@id/my_group_layout_title"
+        android:layout_marginTop="3dp"
+        android:layout_toStartOf="@id/my_group_layout_last_message_time"
+        android:lines="1"
+        android:ellipsize="end"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimaryNew"
+        android:visibility="invisible">
     </TextView>
 
 

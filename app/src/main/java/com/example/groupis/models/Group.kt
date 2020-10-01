@@ -2,16 +2,19 @@ package com.example.groupis.models
 
 import com.google.firebase.database.IgnoreExtraProperties
 import de.hdodenhof.circleimageview.CircleImageView
+import java.io.Serializable
 
 @IgnoreExtraProperties
-class Group {
+class Group : Serializable {
 
     private var title : String = ""
-    private var picture : CircleImageView? = null
+    private var picture : String? = null
     private var size : Int? = 0
     private var lastMsgTime : Long? = null
     private var totalMessages : Int? = null
     private var color : Int? = null
+    private var isWriting : String = "None"
+    private var groupId : Int? = null
 
     constructor()
 
@@ -19,13 +22,20 @@ class Group {
         this.title = title
     }
 
-    constructor(title :String, picture : CircleImageView?, size : Int?, lastMsgTime : Long?, totalMessages : Int?){
+    constructor(title: String, groupId : Int){
+        this.title = title
+        this.groupId = groupId
+    }
+
+    constructor(title :String, picture : String?, size : Int?, lastMsgTime : Long?, totalMessages : Int?, isWriting : String, groupId : Int?){
         this.title = title
         this.picture = picture
         this.size = size
         this.lastMsgTime = lastMsgTime
         this.totalMessages = totalMessages
         this.color = color
+        this.isWriting = isWriting
+        this.groupId = groupId
     }
 
 
@@ -37,11 +47,11 @@ class Group {
         this.title = title
     }
 
-    fun getPicture() : CircleImageView?{
+    fun getPicture() : String?{
         return picture
     }
 
-    fun setPicture(picture : CircleImageView){
+    fun setPicture(picture : String){
         this.picture = picture
     }
 
@@ -81,5 +91,19 @@ class Group {
         return color
     }
 
+    fun setIsWriting(isWriting : String){
+        this.isWriting = isWriting
+    }
 
+    fun getIsWriting() : String{
+        return isWriting
+    }
+
+    fun getGroupId() : Int{
+      return groupId!!
+    }
+
+    fun setGroupId(groupId: Int?){
+        this.groupId = groupId
+    }
 }

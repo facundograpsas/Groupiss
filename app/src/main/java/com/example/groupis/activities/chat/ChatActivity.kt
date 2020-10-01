@@ -1,24 +1,42 @@
 package com.example.groupis.activities.chat
 
 import android.annotation.SuppressLint
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.renderscript.Sampler
-import android.view.View
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.groupis.GlideApp
 import com.example.groupis.R
+import com.example.groupis.activities.main.TOPIC
+import com.example.groupis.activities.main.UserViewModel
 import com.example.groupis.models.Chat
+import com.example.groupis.models.Group
+import com.example.groupis.models.User
+import com.example.groupis.notifications.NotificationClear
+import com.example.groupis.notifications.PushClearNotifications
+import com.example.groupis.notifications.RetrofitInstance
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.storage.FirebaseStorage
+import com.google.gson.Gson
+import de.hdodenhof.circleimageview.CircleImageView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class ChatActivity : AppCompatActivity() {
@@ -27,46 +45,121 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var messageText : EditText
     private lateinit var groupTitle : String
     private lateinit var username : String
-    private val viewModel : ChatViewModel by viewModels()
+    private val chatViewModel : ChatViewModel by viewModels()
+    private val userViewModel : UserViewModel by viewModels()
     private lateinit var chatList : ArrayList<Chat>
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter : ChatAdapter
     private lateinit var day : TextView
-//    private lateinit var listener : ValueEventListener
+    private var timer : Timer? = null
+    private lateinit var groupPicture : CircleImageView
+    private lateinit var myUsername : String
+    private var myUser : User? = null
+    private lateinit var group : Group
 
+    private val TAG = "ChatActivity"
+
+
+    @RequiresApi(Build.VERSION_CODES.P)
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
+
+
+        group = intent.getSerializableExtra("group") as Group
+        chatList = arrayListOf()
+
         setContentView(R.layout.activity_chat)
+        recyclerView = findViewById(R.id.chat_recycler_view)
+
+        if (FirebaseAuth.getInstance().currentUser != null) {
+            userViewModel.retrieveUser()
+        }
+
+        userViewModel.user.observe(this, Observer { user ->
+            myUser = user
+        })
 
         sendArrow = findViewById(R.id.chat_send_arrow)
         messageText = findViewById(R.id.chat_edit_text)
-        var groupName = findViewById<TextView>(R.id.chat_toolbar_title)
-        groupName.text = intent.getStringExtra("groupName")
-        groupTitle = intent.getStringExtra("groupName")!!
-        username = intent.getStringExtra("username")!!
-        chatList = arrayListOf()
+        var groupName = findViewById<TextView>(R.id.chat_activity_layout_group_name)
+        if(intent.getStringExtra("username")!=null){
+            username = intent.getStringExtra("username")!!
+        }
+
+        groupName.text = group.getTitle()
+
+        Log.e(TAG, "Group info:" +
+        group.getTitle()+"\n"+
+                group.getLastMsgTime()+"\n"+
+                group.getColor()+"\n"+
+                group.getGroupId()+"\n"+
+                group.getIsWriting()+"\n"+
+                group.getLastMsgTime()+"\n"+
+                group.getPicture()+"\n"+
+                group.getTotalMessages()+"\n"+
+                group.getSize())
+
+
+        groupPicture = findViewById(R.id.chat_activity_layout_group_image)
+
         day = findViewById<TextView>(R.id.chat_activity_day)
 
-        recyclerView = findViewById(R.id.chat_recycler_view)
         recyclerView.setHasFixedSize(true)
         val linearLayoutManager = LinearLayoutManager(this.applicationContext)
         linearLayoutManager.stackFromEnd = true
         recyclerView.layoutManager = linearLayoutManager
 
-
+        setGroupPicture(group)
         setChatDayOnScroll()
         showDayOnTouchListener()
         onBackArrowImagePressed()
         onSendArrowPress()
 
-        viewModel.message.observe(this, Observer {
-            viewModel.sendMessage(groupTitle, messageText, username, this@ChatActivity)
+        chatViewModel.message.observe(this, Observer {
+            chatViewModel.sendMessage(group, group.getTitle(), messageText, myUser!!.getNameId()!!, this@ChatActivity)
         })
-        viewModel.retrieveMessages(groupTitle, username, chatList, applicationContext, recyclerView)
-        viewModel.setListener(groupTitle)
-        viewModel.setDbRef(groupTitle)
+
+        chatViewModel.setMessagesRef(group.getTitle())
+        chatViewModel.setMessagesListener(chatList, this@ChatActivity, recyclerView)
+
+        chatViewModel.setMessagesSeenListener(group.getTitle())
+        chatViewModel.setMessagesSeenRef(group.getTitle())
+
+        messageText.addTextChangedListener(object : TextWatcher{
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                if(myUser!=null){
+                    if (timer!=null){ timer!!.cancel() }
+                    chatViewModel.setWhoIsWriting(group.getTitle(), myUser!!.getNameId()!!)
+                }
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+                timer = Timer()
+                timer!!.schedule(object : TimerTask(){
+                    override fun run() {
+                        chatViewModel.writingEnded(group.getTitle())
+                    } }, 600)
+            }
+        })
+    }
+
+    private fun setGroupPicture(group: Group) {
+        if (group.getPicture() != null) {
+            val storageRef = FirebaseStorage.getInstance().reference.child("/images")
+            val imageRef = group.getPicture()?.let { storageRef.child(it) }
+            GlideApp.with(this@ChatActivity)
+                .load(imageRef)
+                .into(groupPicture)
+        } else {
+            when (group.getColor()) {
+                1 -> groupPicture.setImageResource(R.drawable.default_group_logo_green)
+                2 -> groupPicture.setImageResource(R.drawable.default_group_logo)
+                3 -> groupPicture.setImageResource(R.drawable.default_group_logo_green_yellowish)
+                4 -> groupPicture.setImageResource(R.drawable.default_group_logo_pink)
+                5 -> groupPicture.setImageResource(R.drawable.default_group_logo_red)
+            }
+        }
     }
 
     private fun setChatDayOnScroll() {
@@ -110,7 +203,7 @@ class ChatActivity : AppCompatActivity() {
     private fun onSendArrowPress() {
         sendArrow.setOnClickListener {
             if (messageText.text.toString() != "") {
-                viewModel.setMessage(messageText.text.toString())
+                chatViewModel.setMessage(messageText.text.toString())
             }
         }
     }
@@ -124,19 +217,53 @@ class ChatActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        viewModel.dbRefRemoveListener(viewModel.getListener())
+        chatViewModel.removeMessagesListener(chatViewModel.getMessagesListeners())
+        chatViewModel.removeMessagesSeenListener(chatViewModel.getMessagesSeenListeners())
         finish()
         super.onBackPressed()
     }
 
     override fun onStop() {
-        viewModel.dbRefRemoveListener(viewModel.getListener())
+        chatViewModel.removeMessagesListener(chatViewModel.getMessagesListeners())
+        chatViewModel.removeMessagesSeenListener(chatViewModel.getMessagesSeenListeners())
         super.onStop()
 
     }
 
     override fun onStart() {
         super.onStart()
-        viewModel.dbRefSetListener(viewModel.getListener())
+        chatViewModel.addMessagesSeenListenerToRef(chatViewModel.getMessagesSeenListeners())
+        chatViewModel.addMessagesListenerToRef()
+
     }
+
+    override fun onResume() {
+        super.onResume()
+        val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(group.getGroupId())
+
+        PushClearNotifications(
+            NotificationClear("123123", FirebaseInstanceId.getInstance().id, group.getGroupId()), TOPIC+group.getTitle()).also {
+            clearNotifications(it)
+        }
+    }
+
+    private fun clearNotifications(notificationClear: PushClearNotifications) =
+        CoroutineScope(Dispatchers.IO).launch {
+            try{
+                val response = RetrofitInstance.api.postClearNotifications(notificationClear)
+                if(response.isSuccessful){
+                    Log.d(
+                        TAG, "Response: ${
+                            Gson().toJson(response)
+                        }"
+                    )
+                }else{
+                    Log.e(TAG, response.errorBody().toString())
+                }
+            }catch (e: Exception){
+                Log.e(TAG, e.toString())
+            }
+        }
+
 }

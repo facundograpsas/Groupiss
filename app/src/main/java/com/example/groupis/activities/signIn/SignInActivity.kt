@@ -59,14 +59,12 @@ class SignInActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode==384){
             val task : Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
-//            progressBar.visibility = View.VISIBLE
             loadingAnimation.visibility = View.VISIBLE
             if(task.isSuccessful) {
                 SignInWithGoogleHandler(task, this) { toMainActivity() }
             }
             else{
                 loadingAnimation.visibility = View.INVISIBLE
-//                progressBar.visibility = View.INVISIBLE
             }
         }
     }

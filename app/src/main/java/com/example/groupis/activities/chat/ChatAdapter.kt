@@ -15,20 +15,15 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-class ChatAdapter(var context: Context, private var chatList: ArrayList<Chat>, private var username : String, private var groupTitle : String) : RecyclerView.Adapter<ChatAdapter.ViewHolder>() {
-
+class ChatAdapter(var context: Context, private var chatList: ArrayList<Chat>) : RecyclerView.Adapter<ChatAdapter.ViewHolder>() {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-
-
-
         return if(viewType==0){
             ViewHolder(LayoutInflater.from(context).inflate(R.layout.chat_sender_layout, parent, false))
         } else{
             ViewHolder(LayoutInflater.from(context).inflate(R.layout.chat_receiver_layout,parent, false))
         }
-
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -37,7 +32,6 @@ class ChatAdapter(var context: Context, private var chatList: ArrayList<Chat>, p
         holder.chatText.text = message.getText()
         holder.chatUsername.text = message.getUsername()
         holder.chatTime.text = message.getHour()
-
         if(message.getDay()==DateUtils.formatDateTime(context, System.currentTimeMillis(), DateUtils.FORMAT_ABBREV_TIME)){
             holder.chatDay.text = "HOY"
         }else{

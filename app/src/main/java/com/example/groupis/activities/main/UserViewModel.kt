@@ -43,14 +43,10 @@ class UserViewModel : ViewModel() {
         lateinit var user : User
             val ref = FirebaseDatabase.getInstance().reference.child("Users")
                 .child(FirebaseAuth.getInstance().currentUser!!.uid)
-            ref.addValueEventListener(object : ValueEventListener {
+            ref.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    println("Activatres")
                     if (snapshot.exists()) {
-                        println("Existe moy bien"+snapshot.value)
                         user = snapshot.getValue(User::class.java)!!
-                        println("FROM VM: "+user.getNameId())
-                        println("FROM VM: "+user.getEmail())
                         setUser(user)
                         setUserLoaded(true)
                     }

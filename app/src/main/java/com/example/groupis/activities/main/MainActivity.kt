@@ -1,9 +1,11 @@
 package com.example.groupis.activities.main
 
+import android.annotation.SuppressLint
 import android.app.ActivityOptions
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -13,27 +15,36 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.get
 import androidx.lifecycle.Observer
 import androidx.viewpager.widget.ViewPager
-import com.example.groupis.activities.profile.ProfileActivity
 import com.example.groupis.R
 import com.example.groupis.activities.main.adapters.SectionsPagerAdapter
-import com.example.groupis.activities.main.fragments.NewGroupFragment
-import com.example.groupis.activities.main.fragments.NewPublicGroupDialog
 import com.example.groupis.activities.newgroup.NewGroupActivity
+import com.example.groupis.activities.profile.ProfileActivity
 import com.example.groupis.activities.signIn.SignInActivity
 import com.example.groupis.activities.username.SetUsernameActivity
 import com.example.groupis.models.User
+import com.example.groupis.notifications.PushNotificationMessage
+import com.example.groupis.notifications.RetrofitInstance
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import android.util.Pair as UtilPair
 
 
+const val TOPIC = "/topics/"
+
 class MainActivity : AppCompatActivity() {
+
+
 
 
     private lateinit var fab : FloatingActionButton
@@ -47,9 +58,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var myPrefs : SharedPreferences
     private lateinit var viewPager : ViewPager
 
+    val TAG = "MainActivity"
 
+
+    @SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
-
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -71,12 +84,32 @@ class MainActivity : AppCompatActivity() {
 
         val viewModel : UserViewModel by viewModels()
 
-        retrieveUserr(viewModel)
+        retrieveUser(viewModel)
         fabOnClick()
         onProfileClick()
         redirectNewUser()
 
         onAddPublicGroupClick(viewModel)
+
+//        FirebaseInstanceId.getInstance().instanceId
+//            .addOnCompleteListener {
+//                Log.i(TAG, "TOKEN: ${it.result!!.token}")
+//            }
+
+        Log.i(TAG, "TOEKN: ${FirebaseInstanceId.getInstance().id}")
+
+        FirebaseMessaging.getInstance().subscribeToTopic("${TOPIC}grupo")
+
+//        fabAddPrivate.setOnClickListener {
+//            val title = "TITULO DE NOTI"
+//            val message = "MENSAJE DE NOTI"
+//            PushNotification(
+//                NotificationData("asd",title, message, 1),
+//                TOPIC
+//            ).also {
+//                sendNotification(it)
+//            }
+//        }
 
     }
 
@@ -85,12 +118,6 @@ class MainActivity : AppCompatActivity() {
         fabAddPublic.setOnClickListener {
             fabAddPublic.isClickable = false
             val options = ActivityOptions.makeSceneTransitionAnimation(this)
-
-            //            val newFragment = NewPublicGroupDialog()
-    //            newFragment.show(supportFragmentManager, "New Public Group Dialog")
-
-    //              val newGroupFragment = NewGroupFragment.newInstance("asd", "ad")
-    //            supportFragmentManager.beginTransaction().add(R.id.view_pager, newGroupFragment).commit()
             val intent = Intent(this@MainActivity, NewGroupActivity::class.java)
                 .apply { putExtra("user", viewModel.getUser().value) }
             startActivity(intent, options.toBundle())
@@ -101,7 +128,7 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun retrieveUserr(viewModel : UserViewModel) {
+    private fun retrieveUser(viewModel: UserViewModel) {
         if (FirebaseAuth.getInstance().currentUser != null) {
             viewModel.retrieveUser()
         }
@@ -122,6 +149,7 @@ class MainActivity : AppCompatActivity() {
                 ).putExtra("username", profileName.text), options.toBundle()
             )
         }
+
     }
 
     private fun fabOnClick() {
@@ -155,7 +183,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
-            R.id.menu_logout -> {logout()}
+            R.id.menu_logout -> {
+                logout()
+            }
             R.id.menu_settings -> println("Settings")
         }
         return true
@@ -196,4 +226,22 @@ class MainActivity : AppCompatActivity() {
         if(viewPager.currentItem==0) { super.onBackPressed() }
         else{ viewPager.setCurrentItem(0, true) }
     }
-}
+
+    private fun sendNotification(notificationMessage: PushNotificationMessage) =
+        CoroutineScope(Dispatchers.IO).launch {
+            try{
+                val response = RetrofitInstance.api.postNotificationMessage(notificationMessage)
+                if(response.isSuccessful){
+                    Log.d(
+                        TAG, "Response: ${
+                            Gson().toJson(response)
+                        }"
+                    )
+                }else{
+                    Log.e(TAG, response.errorBody().toString())
+                }
+            }catch (e: Exception){
+                Log.e(TAG, e.toString())
+            }
+        }
+    }
