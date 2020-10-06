@@ -1,14 +1,14 @@
 package com.example.groupis.activities.username
 
 import android.content.Intent
-
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Observer
@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 class SetUsernameActivity : AppCompatActivity() {
 
+    private val TAG = "SetUsernameActivity"
     private lateinit var usernameEditText: EditText
     private lateinit var acceptButton : Button
     private lateinit var usernameAvailable : TextView
@@ -80,6 +81,7 @@ class SetUsernameActivity : AppCompatActivity() {
         acceptButton = findViewById(R.id.set_username_button)
         acceptButton.setOnClickListener {
             if (viewModel.isFree.value!! && viewModel.isValid.value!!) {
+                Log.e(TAG, "DENTRO DEDDDEDEDEDEDED")
                 viewModel.saveUsernameToDB()
                 val prefs = getSharedPreferences("prefs", MODE_PRIVATE)!!.edit()
                 prefs.putString(FirebaseAuth.getInstance().currentUser!!.uid, viewModel.userName.value)

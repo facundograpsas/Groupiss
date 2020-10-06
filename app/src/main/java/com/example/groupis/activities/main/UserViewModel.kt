@@ -34,26 +34,48 @@ class UserViewModel : ViewModel() {
         this.user.value = user
     }
 
-    fun setUserLoaded(isLoad : Boolean){
+    fun setUserLoaded(isLoad: Boolean) {
         userLoaded.value = isLoad
     }
 
 
-    fun retrieveUser(){
-        lateinit var user : User
-            val ref = FirebaseDatabase.getInstance().reference.child("Users")
-                .child(FirebaseAuth.getInstance().currentUser!!.uid)
-            ref.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        user = snapshot.getValue(User::class.java)!!
-                        setUser(user)
-                        setUserLoaded(true)
-                    }
+    fun retrieveUser() {
+        lateinit var user: User
+        val ref = FirebaseDatabase.getInstance().reference.child("Users")
+            .child(FirebaseAuth.getInstance().currentUser!!.uid)
+        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    user = snapshot.getValue(User::class.java)!!
+                    setUser(user)
+                    setUserLoaded(true)
                 }
-                override fun onCancelled(error: DatabaseError) {
-                }
-            })
+            }
 
-        }
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
+
+    }
+
+    fun retrieveUser(callback: RetrieveUserCallback) {
+        val ref = FirebaseDatabase.getInstance().reference.child("Users")
+            .child(FirebaseAuth.getInstance().currentUser!!.uid)
+        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val user = snapshot.getValue(User::class.java)
+                    callback.onCallback(user!!)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
+    }
+}
+
+
+interface RetrieveUserCallback {
+    fun onCallback(user: User)
 }

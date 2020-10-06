@@ -4,10 +4,6 @@ package com.example.groupis.activities.newgroup
 import android.animation.Animator
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Matrix
-import android.media.ExifInterface
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Button
@@ -15,7 +11,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.airbnb.lottie.LottieAnimationView
@@ -24,15 +19,12 @@ import com.example.groupis.activities.main.GroupViewModel
 import com.example.groupis.activities.main.MyGroupViewModel
 import com.example.groupis.activities.main.UserViewModel
 import com.example.groupis.activities.profile.UsernameCallback
-import com.example.groupis.models.Group
 import com.example.groupis.models.User
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.auth.FirebaseAuth
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_new_group.*
-import java.io.InputStream
 
 private val GALLERY_REQUEST: Int = 23
 
@@ -69,7 +61,6 @@ class NewGroupActivity : AppCompatActivity() {
             onCreateGroupClick(groupViewModel, groupName, userViewModel, user)
         }
 
-
         groupViewModel.newGroupState.observe(this, Observer { result ->
             when (result) {
                 "LARGO INVALIDO" -> Toast.makeText(
@@ -86,18 +77,11 @@ class NewGroupActivity : AppCompatActivity() {
             }
         })
 
-
-
         setPictureFab.setOnClickListener {
-//            val intent = Intent(Intent.ACTION_PICK)
-//            intent.type = "image/**"
-//            startActivityForResult(intent, GALLERY_REQUEST)
             CropImage.activity()
                 .setGuidelines(CropImageView.Guidelines.ON)
                 .start(this)
         }
-
-
     }
 
     private fun onAnimationEnd(
@@ -155,56 +139,6 @@ class NewGroupActivity : AppCompatActivity() {
     private fun toChatActivity(groupViewModel: GroupViewModel, user: User, groupName: String, groupId : Int){
         groupViewModel.goToNewGroup(this@NewGroupActivity, user)
     }
-
-
-//    @RequiresApi(Build.VERSION_CODES.N)
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-////        profileImageView = findViewById(R.id.new_group_layout_profile_image)
-//        super.onActivityResult(requestCode, resultCode, data)
-//        if(resultCode==RESULT_OK){
-//            when(requestCode){
-//                GALLERY_REQUEST -> {
-//                    val selectedImage = data!!.data
-//                    val orientation = getImageOrientation(selectedImage)
-//                    var rotatedBitmap : Bitmap? = null
-//                    try {
-//                        bitmap = MediaStore.Images.Media.getBitmap(
-//                            this.contentResolver,
-//                            selectedImage
-//                        )
-//                        when (orientation) {
-//                            ExifInterface.ORIENTATION_ROTATE_90 -> rotatedBitmap = rotateImage(bitmap!!, 90F)
-//                        }
-////                        profileImageView.setImageBitmap(bitmap)
-//                        profileImageCircle.setImageBitmap(rotatedBitmap)
-//                    } catch (e: Exception) {
-//                        Log.i("New Group", e.message.toString())
-//                    }
-//                }
-//            }
-//        }
-//    }
-
-//    @RequiresApi(Build.VERSION_CODES.N)
-//    private fun getImageOrientation(selectedImage: Uri?): Int {
-//        var inputStream: InputStream? =
-//            applicationContext.contentResolver!!.openInputStream(selectedImage!!)
-//        val exif = ExifInterface(inputStream!!)
-//        return exif.getAttributeInt(
-//            ExifInterface.TAG_ORIENTATION,
-//            ExifInterface.ORIENTATION_UNDEFINED
-//        )
-//    }
-
-//    private fun rotateImage(source: Bitmap, angle: Float): Bitmap? {
-//        val matrix = Matrix()
-//        matrix.postRotate(angle)
-//        return Bitmap.createBitmap(
-//            source, 0, 0, source.width, source.height,
-//            matrix, true
-//        )
-//    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {

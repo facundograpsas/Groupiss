@@ -36,6 +36,7 @@
             android:name=".activities.profile.ProfileActivity"
             android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".activities.signIn.SignInActivity"
             android:theme="@style/AppTheme.NoActionBar" />

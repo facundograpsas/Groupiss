@@ -5,6 +5,7 @@ import android.os.Build
 import android.text.format.DateUtils
 import android.util.Log
 import android.widget.EditText
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.groupis.activities.main.TOPIC
 import com.example.groupis.models.Chat
 import com.example.groupis.models.Group
+import com.example.groupis.models.User
 import com.example.groupis.notifications.NotificationData
 import com.example.groupis.notifications.PushNotificationMessage
 import com.example.groupis.notifications.RetrofitInstance
@@ -22,6 +24,10 @@ import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.*
+import kotlin.collections.HashMap
 
 class ChatViewModel : ViewModel() {
 
@@ -31,28 +37,57 @@ class ChatViewModel : ViewModel() {
     private val messagesSeenListener = MutableLiveData<ValueEventListener>()
     private val messagesDbRef = MutableLiveData<DatabaseReference>()
     private val messagesListener = MutableLiveData<ChildEventListener>()
+    val whoIsWritingListener = MutableLiveData<ChildEventListener>()
 
 
     @RequiresApi(Build.VERSION_CODES.P)
-    fun sendMessage(group : Group, groupTitle : String, messageText : EditText, username : String, context : Context){
+    fun sendMessage(
+        group: Group,
+        groupTitle: String,
+        messageText: EditText,
+        user: User,
+        context: Context
+    ) {
         val dbRef = FirebaseDatabase.getInstance().reference.child("Groups").child(groupTitle)
             .child("messages")
         val hashMap = hashMapOf<String, Any>()
         val text = messageText.text.toString()
+
+        val date = LocalTime.now()
+        val formatter = DateTimeFormatter.ofPattern("h:mm a")
+        val hour = date.format(formatter)
+
         hashMap["text"] = messageText.text.toString()
-        hashMap["username"] = username
+        hashMap["username"] = user.getNameId()!!
         hashMap["uid"] = FirebaseAuth.getInstance().currentUser!!.uid
-        hashMap["hour"] = DateUtils.formatDateTime(context, System.currentTimeMillis(), DateUtils.FORMAT_SHOW_TIME)
-        hashMap["day"] = DateUtils.formatDateTime(context, System.currentTimeMillis(), DateUtils.FORMAT_ABBREV_TIME)
+        hashMap["hour"] = hour
+        hashMap["day"] = DateUtils.formatDateTime(
+            context,
+            System.currentTimeMillis(),
+            DateUtils.FORMAT_ABBREV_TIME
+        )
         hashMap["timeInMillis"] = System.currentTimeMillis()
         dbRef.child(dbRef.push().key!!).updateChildren(hashMap)
         messageText.text.clear()
         saveLastMessage(group.getTitle())
         updateGroupTotalMessages(dbRef, group.getTitle())
         PushNotificationMessage(
-            NotificationData(group, text, username, FirebaseInstanceId.getInstance().id), TOPIC+groupTitle.replace(" ", "f")).also {
+            NotificationData(
+                group,
+                text,
+                user.getNameId()!!,
+                FirebaseInstanceId.getInstance().id,
+                user.getPictureRef()
+            ),
+            TOPIC + groupTitle.replace(
+                " ",
+                "f"
+            )
+        ).also {
             sendNotification(it)
         }
+//        Log.e(TAG, timeText)
+
     }
 
     private fun updateGroupTotalMessages(dbRef: DatabaseReference, groupTitle: String) {
@@ -65,16 +100,19 @@ class ChatViewModel : ViewModel() {
                     .child(groupTitle)
                     .updateChildren(tmHashMap)
             }
+
             override fun onCancelled(error: DatabaseError) {}
         })
     }
 
     private fun saveLastMessage(groupTitle: String) {
         FirebaseDatabase.getInstance().reference.child("Groups").child(groupTitle)
-                    val hashMap = hashMapOf<String, Any>()
-                    hashMap["lastMsgTime"] = System.currentTimeMillis()
-                    FirebaseDatabase.getInstance().reference.child("Groups").child(groupTitle).updateChildren(hashMap)
-                }
+        val hashMap = hashMapOf<String, Any>()
+        hashMap["lastMsgTime"] = System.currentTimeMillis()
+        FirebaseDatabase.getInstance().reference.child("Groups").child(groupTitle).updateChildren(
+            hashMap
+        )
+    }
 
 
     fun setMessage(message: String){
@@ -101,24 +139,28 @@ class ChatViewModel : ViewModel() {
         CoroutineScope(Dispatchers.IO).launch {
             try{
                 val response = RetrofitInstance.api.postNotificationMessage(notificationMessage)
-                if(response.isSuccessful){
+                if (response.isSuccessful) {
                     Log.d(
                         TAG, "Response: ${
                             Gson().toJson(response)
                         }"
                     )
-                }else{
+                } else {
                     Log.e(TAG, response.errorBody().toString())
                 }
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 Log.e(TAG, e.toString())
             }
         }
 
 
-    fun setMessagesListener(chatList: ArrayList<Chat>, applicationContext: Context, recyclerView: RecyclerView){
-        messagesListener.value = object : ChildEventListener{
-            var adapter : ChatAdapter? = null
+    fun setMessagesListener(
+        chatList: ArrayList<Chat>,
+        applicationContext: Context,
+        recyclerView: RecyclerView
+    ) {
+        messagesListener.value = object : ChildEventListener {
+            var adapter: ChatAdapter? = null
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 val message = snapshot.getValue(Chat::class.java)
                 Log.e(TAG, message!!.getText())
@@ -126,6 +168,7 @@ class ChatViewModel : ViewModel() {
                 adapter = ChatAdapter(applicationContext, chatList)
                 recyclerView.adapter = adapter
             }
+
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
             override fun onChildRemoved(snapshot: DataSnapshot) {}
             override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
@@ -135,9 +178,9 @@ class ChatViewModel : ViewModel() {
 
 
     fun setMessagesSeenListener(groupTitle: String){
-        messagesSeenListener.value = object : ValueEventListener{
+        messagesSeenListener.value = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val seenHashMap = hashMapOf<String,Any>()
+                val seenHashMap = hashMapOf<String, Any>()
                 seenHashMap["messagesSeen"] = snapshot.childrenCount
                 FirebaseDatabase.getInstance().reference.child("Groups")
                     .child(groupTitle)
@@ -145,12 +188,34 @@ class ChatViewModel : ViewModel() {
                     .child(FirebaseAuth.getInstance().currentUser!!.uid).updateChildren(seenHashMap)
                 println(FirebaseAuth.getInstance().currentUser!!.uid)
             }
+
+            override fun onCancelled(error: DatabaseError) {}
+        }
+    }
+
+    fun setWhoIsWritingListener(
+        writingText: TextView,
+        myUser: User,
+        funct: (name: String, key: String) -> Unit
+    ) {
+        whoIsWritingListener.value = object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                val name = snapshot.value.toString()
+                val key = snapshot.key
+                funct(name, key!!)
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {}
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
             override fun onCancelled(error: DatabaseError) {}
         }
     }
 
 
-    fun addMessagesListenerToRef(){
+    fun addMessagesListenerToRef() {
         messagesDbRef.value!!.addChildEventListener(messagesListener.value!!)
     }
 
@@ -158,28 +223,32 @@ class ChatViewModel : ViewModel() {
         messagesSeenDbRef.value!!.addValueEventListener(messagesSeenListener.value!!)
     }
 
-    fun removeMessagesListener(listener : ChildEventListener){
+    fun removeMessagesListener(listener: ChildEventListener) {
         messagesDbRef.value!!.removeEventListener(listener)
     }
 
-    fun removeMessagesSeenListener(removeEventListener: ValueEventListener){
+    fun removeMessagesSeenListener(removeEventListener: ValueEventListener) {
         messagesSeenDbRef.value!!.removeEventListener(removeEventListener)
     }
 
-    fun setMessagesRef(groupTitle : String){
-        messagesDbRef.value = FirebaseDatabase.getInstance().reference.child("Groups").child(groupTitle)
+    fun setMessagesRef(groupTitle: String) {
+        messagesDbRef.value = FirebaseDatabase.getInstance().reference.child("Groups").child(
+            groupTitle
+        )
             .child("messages")
     }
 
-    fun setMessagesSeenRef(groupTitle: String){
-        messagesSeenDbRef.value = FirebaseDatabase.getInstance().reference.child("Groups").child(groupTitle).child("messages")
+    fun setMessagesSeenRef(groupTitle: String) {
+        messagesSeenDbRef.value = FirebaseDatabase.getInstance().reference.child("Groups").child(
+            groupTitle
+        ).child("messages")
     }
 
-    fun getMessagesListeners() : ChildEventListener{
+    fun getMessagesListeners(): ChildEventListener {
         return messagesListener.value!!
     }
 
-    fun getMessagesSeenListeners() : ValueEventListener{
+    fun getMessagesSeenListeners(): ValueEventListener {
         return messagesSeenListener.value!!
     }
 }

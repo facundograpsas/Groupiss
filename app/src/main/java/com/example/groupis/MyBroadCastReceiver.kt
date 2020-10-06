@@ -65,7 +65,7 @@ class MyBroadCastReceiver : BroadcastReceiver() {
                 RetrofitInstance.api.postClearNotifications(
                     data = PushClearNotifications(
                         NotificationClear("123123", FirebaseInstanceId.getInstance().id, id),
-                        TOPIC + groupTitle
+                        TOPIC + groupTitle!!.replace(" ", "f")
                     )
                 )
             } catch (e: Exception) {

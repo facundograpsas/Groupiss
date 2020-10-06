@@ -4,19 +4,21 @@ import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.airbnb.lottie.LottieAnimationView
 import com.example.groupis.GlideApp
 import com.example.groupis.R
 import com.example.groupis.activities.main.TOPIC
@@ -28,6 +30,9 @@ import com.example.groupis.notifications.NotificationClear
 import com.example.groupis.notifications.PushClearNotifications
 import com.example.groupis.notifications.RetrofitInstance
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.Query
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.Gson
@@ -36,25 +41,28 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class ChatActivity : AppCompatActivity() {
 
-    private lateinit var sendArrow : ImageView
-    private lateinit var messageText : EditText
-    private lateinit var groupTitle : String
-    private lateinit var username : String
-    private val chatViewModel : ChatViewModel by viewModels()
-    private val userViewModel : UserViewModel by viewModels()
-    private lateinit var chatList : ArrayList<Chat>
+    private lateinit var isWritingRef: Query
+    private lateinit var whoIsWritingListener: ChildEventListener
+    private lateinit var sendArrow: ImageView
+    private lateinit var messageText: EditText
+    private lateinit var groupTitle: String
+    private lateinit var username: String
+    private val chatViewModel: ChatViewModel by viewModels()
+    private val userViewModel: UserViewModel by viewModels()
+    private lateinit var chatList: ArrayList<Chat>
     private lateinit var recyclerView: RecyclerView
-    private lateinit var day : TextView
-    private var timer : Timer? = null
-    private lateinit var groupPicture : CircleImageView
-    private lateinit var myUsername : String
-    private var myUser : User? = null
-    private lateinit var group : Group
+    private lateinit var day: TextView
+    private var timer: Timer? = null
+    private lateinit var groupPicture: CircleImageView
+    private lateinit var myUsername: String
+    private var myUser: User? = null
+    private lateinit var group: Group
+    private lateinit var writingAnimation: LottieAnimationView
+    private lateinit var writingText: TextView
 
     private val TAG = "ChatActivity"
 
@@ -75,8 +83,27 @@ class ChatActivity : AppCompatActivity() {
             userViewModel.retrieveUser()
         }
 
+        writingText = findViewById(R.id.chat_activity_writing_text)
+
+        isWritingRef =
+            FirebaseDatabase.getInstance().reference.child("Groups").child(group.getTitle())
+                .orderByChild("isWriting")
+
+
         userViewModel.user.observe(this, Observer { user ->
             myUser = user
+            chatViewModel.setWhoIsWritingListener(writingText, myUser!!) { name, key ->
+                if (name != "None" && name != myUser!!.getNameId() && key == "isWriting") {
+                    writingText.text = "$name esta escribiendo un mensaje..."
+                    writingText.visibility = View.VISIBLE
+                    Log.e(TAG, "SNAPSHOT VALUE : $name")
+                } else {
+                    writingText.visibility = View.INVISIBLE
+                }
+            }
+
+            isWritingRef.addChildEventListener(chatViewModel.whoIsWritingListener.value!!)
+
         })
 
         sendArrow = findViewById(R.id.chat_send_arrow)
@@ -99,9 +126,8 @@ class ChatActivity : AppCompatActivity() {
                 group.getTotalMessages()+"\n"+
                 group.getSize())
 
-
+        writingAnimation = findViewById(R.id.chat_activity_writing_animation)
         groupPicture = findViewById(R.id.chat_activity_layout_group_image)
-
         day = findViewById<TextView>(R.id.chat_activity_day)
 
         recyclerView.setHasFixedSize(true)
@@ -116,7 +142,13 @@ class ChatActivity : AppCompatActivity() {
         onSendArrowPress()
 
         chatViewModel.message.observe(this, Observer {
-            chatViewModel.sendMessage(group, group.getTitle(), messageText, myUser!!.getNameId()!!, this@ChatActivity)
+            chatViewModel.sendMessage(
+                group,
+                group.getTitle(),
+                messageText,
+                myUser!!,
+                this@ChatActivity
+            )
         })
 
         chatViewModel.setMessagesRef(group.getTitle())
@@ -219,6 +251,8 @@ class ChatActivity : AppCompatActivity() {
     override fun onBackPressed() {
         chatViewModel.removeMessagesListener(chatViewModel.getMessagesListeners())
         chatViewModel.removeMessagesSeenListener(chatViewModel.getMessagesSeenListeners())
+        isWritingRef.removeEventListener(chatViewModel.whoIsWritingListener.value!!)
+
         finish()
         super.onBackPressed()
     }
@@ -226,6 +260,7 @@ class ChatActivity : AppCompatActivity() {
     override fun onStop() {
         chatViewModel.removeMessagesListener(chatViewModel.getMessagesListeners())
         chatViewModel.removeMessagesSeenListener(chatViewModel.getMessagesSeenListeners())
+        isWritingRef.removeEventListener(chatViewModel.whoIsWritingListener.value!!)
         super.onStop()
 
     }
@@ -265,5 +300,6 @@ class ChatActivity : AppCompatActivity() {
                 Log.e(TAG, e.toString())
             }
         }
-
 }
+
+

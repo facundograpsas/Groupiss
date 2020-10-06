@@ -1,10 +1,11 @@
 package com.example.groupis.activities.signIn
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
+import androidx.appcompat.app.AppCompatActivity
 import com.airbnb.lottie.LottieAnimationView
 import com.example.groupis.R
 import com.example.groupis.activities.main.MainActivity
@@ -23,14 +24,16 @@ import com.google.firebase.database.ValueEventListener
 
 class SignInActivity : AppCompatActivity() {
 
-    private lateinit var signInButton : SignInButton
-    private lateinit var mGoogleSignInClient : GoogleSignInClient
-    private lateinit var progressBar : ProgressBar
-    private lateinit var loadingAnimation : LottieAnimationView
+    private lateinit var signInButton: SignInButton
+    private lateinit var mGoogleSignInClient: GoogleSignInClient
+    private lateinit var progressBar: ProgressBar
+    private lateinit var loadingAnimation: LottieAnimationView
+    val TAG = "SigInActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
+
 
         progressBar = findViewById(R.id.loadingProgress)
         loadingAnimation = findViewById(R.id.loading_animation)
@@ -61,6 +64,7 @@ class SignInActivity : AppCompatActivity() {
             val task : Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
             loadingAnimation.visibility = View.VISIBLE
             if(task.isSuccessful) {
+                Log.e(TAG, "Task successful")
                 SignInWithGoogleHandler(task, this) { toMainActivity() }
             }
             else{
@@ -71,17 +75,24 @@ class SignInActivity : AppCompatActivity() {
 
     private fun toMainActivity(){
         val refUser = FirebaseDatabase.getInstance().reference.child("Users").child(FirebaseAuth.getInstance().currentUser!!.uid).child("nameId")
-        refUser.addListenerForSingleValueEvent(object: ValueEventListener {
+        refUser.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if(!snapshot.exists()){
+                Log.e(TAG, snapshot.children.toString())
+                Log.e(TAG, snapshot.value.toString())
+                Log.e(TAG, snapshot.exists().toString())
+
+
+                if (!snapshot.exists()) {
+                    Log.e(TAG, "No ExistSxd")
                     startActivity(Intent(this@SignInActivity, SetUsernameActivity::class.java))
                     finish()
-                }
-                else{
+                } else {
+                    Log.e(TAG, "Existteeeeeeeee")
                     startActivity(Intent(this@SignInActivity, MainActivity::class.java))
                     finish()
                 }
             }
+
             override fun onCancelled(error: DatabaseError) {
             }
         })

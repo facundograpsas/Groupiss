@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import android.app.ActivityOptions
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
 import androidx.viewpager.widget.ViewPager
+import com.example.groupis.GlideApp
 import com.example.groupis.R
 import com.example.groupis.activities.main.adapters.SectionsPagerAdapter
 import com.example.groupis.activities.newgroup.NewGroupActivity
@@ -24,48 +25,47 @@ import com.example.groupis.activities.profile.ProfileActivity
 import com.example.groupis.activities.signIn.SignInActivity
 import com.example.groupis.activities.username.SetUsernameActivity
 import com.example.groupis.models.User
-import com.example.groupis.notifications.PushNotificationMessage
-import com.example.groupis.notifications.RetrofitInstance
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.iid.FirebaseInstanceId
-import com.google.firebase.messaging.FirebaseMessaging
-import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import de.hdodenhof.circleimageview.CircleImageView
 import android.util.Pair as UtilPair
 
+
+var userProfileImageRef: StorageReference? = null
 
 const val TOPIC = "/topics/"
 
 class MainActivity : AppCompatActivity() {
 
 
-
-
-    private lateinit var fab : FloatingActionButton
-    private lateinit var fabAddPublic : FloatingActionButton
-    private lateinit var fabAddPrivate : FloatingActionButton
+    private lateinit var fab: FloatingActionButton
+    private lateinit var fabAddPublic: FloatingActionButton
+    private lateinit var fabAddPrivate: FloatingActionButton
     private var isFabClicked = false
-    private lateinit var goToProfile : RelativeLayout
-    private lateinit var profileName : TextView
-    private lateinit var profileImage : ImageView
-    private lateinit var user : User
-    private lateinit var myPrefs : SharedPreferences
-    private lateinit var viewPager : ViewPager
+    private lateinit var goToProfile: RelativeLayout
+    private lateinit var profileName: TextView
+    private lateinit var profileImage: CircleImageView
+    private lateinit var user: User
+    private lateinit var myPrefs: SharedPreferences
+    private lateinit var viewPager: ViewPager
 
     val TAG = "MainActivity"
 
 
     @SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         val sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
         viewPager = findViewById(R.id.view_pager)
         viewPager.adapter = sectionsPagerAdapter
@@ -82,7 +82,24 @@ class MainActivity : AppCompatActivity() {
         profileImage = findViewById(R.id.profile_image)
         myPrefs = getSharedPreferences("prefs", MODE_PRIVATE)
 
-        val viewModel : UserViewModel by viewModels()
+        val viewModel: UserViewModel by viewModels()
+
+        val storageRef = FirebaseStorage.getInstance().reference.child("/users")
+
+
+        if (FirebaseAuth.getInstance().currentUser != null) {
+            viewModel.retrieveUser(object : RetrieveUserCallback {
+                override fun onCallback(userP: User) {
+                    user = userP
+                    if (user.getPictureRef() != null) {
+                        GlideApp.with(this@MainActivity)
+                            .load(storageRef.child(user.getPictureRef()!! + ".jpg"))
+                            .into(profileImage)
+                    }
+                }
+            })
+        }
+
 
         retrieveUser(viewModel)
         fabOnClick()
@@ -91,25 +108,7 @@ class MainActivity : AppCompatActivity() {
 
         onAddPublicGroupClick(viewModel)
 
-//        FirebaseInstanceId.getInstance().instanceId
-//            .addOnCompleteListener {
-//                Log.i(TAG, "TOKEN: ${it.result!!.token}")
-//            }
-
-        Log.i(TAG, "TOEKN: ${FirebaseInstanceId.getInstance().id}")
-
-        FirebaseMessaging.getInstance().subscribeToTopic("${TOPIC}grupo")
-
-//        fabAddPrivate.setOnClickListener {
-//            val title = "TITULO DE NOTI"
-//            val message = "MENSAJE DE NOTI"
-//            PushNotification(
-//                NotificationData("asd",title, message, 1),
-//                TOPIC
-//            ).also {
-//                sendNotification(it)
-//            }
-//        }
+        Log.e(TAG, "CREATED VIEW")
 
     }
 
@@ -142,11 +141,13 @@ class MainActivity : AppCompatActivity() {
                 UtilPair.create(profileImage as View, "profile_image_transition"),
                 UtilPair.create(profileName as View, "profile_name_transition")
             )
-            startActivity(
+            startActivityForResult(
                 Intent(
                     this@MainActivity,
                     ProfileActivity::class.java
-                ).putExtra("username", profileName.text), options.toBundle()
+                ).putExtra("username", profileName.text).putExtra("user", user),
+                123,
+                options.toBundle()
             )
         }
 
@@ -199,49 +200,61 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun redirectNewUser(){
-        if(FirebaseAuth.getInstance().currentUser==null){
+        if (FirebaseAuth.getInstance().currentUser == null) {
             startActivity(Intent(this@MainActivity, SignInActivity::class.java))
             finish()
-        }
-        else if(FirebaseAuth.getInstance().currentUser!=null){
-            val username = myPrefs.getString(FirebaseAuth.getInstance().currentUser!!.uid, null)
-            if (username==null){
-                startActivity(Intent(this@MainActivity, SetUsernameActivity::class.java))
-                finish()
-            }
-            else{
-                profileName.text = username
-            }
+        } else if (FirebaseAuth.getInstance().currentUser != null) {
+            val refUser = FirebaseDatabase.getInstance().reference.child("Users")
+                .child(FirebaseAuth.getInstance().currentUser!!.uid).child("nameId")
+            refUser.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    Log.e(TAG, snapshot.children.toString())
+                    Log.e(TAG, snapshot.value.toString())
+                    Log.e(TAG, snapshot.exists().toString())
+
+
+                    if (!snapshot.exists()) {
+                        Log.e(TAG, "No ExistSxd")
+                        startActivity(Intent(this@MainActivity, SetUsernameActivity::class.java))
+                        finish()
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                }
+            })
         }
     }
 
     override fun onResume() {
-        super.onResume()
         goToProfile.isClickable = true
         fabAddPublic.isClickable = true
+        super.onResume()
     }
 
 
     override fun onBackPressed() {
-        if(viewPager.currentItem==0) { super.onBackPressed() }
-        else{ viewPager.setCurrentItem(0, true) }
+        if (viewPager.currentItem == 0) {
+            super.onBackPressed()
+        } else {
+            viewPager.setCurrentItem(0, true)
+        }
     }
 
-    private fun sendNotification(notificationMessage: PushNotificationMessage) =
-        CoroutineScope(Dispatchers.IO).launch {
-            try{
-                val response = RetrofitInstance.api.postNotificationMessage(notificationMessage)
-                if(response.isSuccessful){
-                    Log.d(
-                        TAG, "Response: ${
-                            Gson().toJson(response)
-                        }"
-                    )
-                }else{
-                    Log.e(TAG, response.errorBody().toString())
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 123) {
+            if (resultCode == 123) {
+                val uriString = data!!.getStringExtra("image")
+                if (uriString != null) {
+                    val uri = Uri.parse(uriString)
+//                    profileImage.setImageURI(uri)
+                    GlideApp.with(this@MainActivity)
+                        .load(uri)
+                        .into(profileImage)
                 }
-            }catch (e: Exception){
-                Log.e(TAG, e.toString())
             }
         }
     }
+
+}
