@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.groupis">
-
+    package="com.app.groupis">
 
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
 
-
     <application
-        android:name=".GroupisApp"
+        android:name="com.app.groupis.GroupisApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -24,25 +22,25 @@
         <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat"/>
         <activity
-            android:name=".activities.newgroup.NewGroupActivity"
+            android:name="com.app.groupis.activities.newgroup.NewGroupActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:name=".activities.chat.ChatActivity"
-            android:parentActivityName=".activities.main.MainActivity"
+            android:name="com.app.groupis.activities.chat.ChatActivity"
+            android:parentActivityName="com.app.groupis.activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".activities.username.SetUsernameActivity" />
+        <activity android:name="com.app.groupis.activities.username.SetUsernameActivity" />
         <activity
-            android:name=".activities.profile.ProfileActivity"
-            android:parentActivityName=".activities.main.MainActivity"
+            android:name="com.app.groupis.activities.profile.ProfileActivity"
+            android:parentActivityName="com.app.groupis.activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
-            android:name=".activities.signIn.SignInActivity"
+            android:name="com.app.groupis.activities.signIn.SignInActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:name=".activities.main.MainActivity"
+            android:name="com.app.groupis.activities.main.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -53,7 +51,7 @@
         </activity>
 
         <service
-            android:name=".notifications.MyFirebaseMessagingService"
+            android:name="com.app.groupis.notifications.MyFirebaseMessagingService"
             android:permission="com.google.android.c2dm.permission.SEND"
             android:exported="false">
             <intent-filter>
@@ -66,9 +64,9 @@
             android:enabled="true"
             android:exported="true"
             android:label="BootReceiver"
-            android:name=".MyBroadCastReceiver">
+            android:name="com.app.groupis.MyBroadCastReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 

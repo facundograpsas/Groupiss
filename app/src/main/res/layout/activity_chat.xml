@@ -23,7 +23,7 @@
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/chat_activity_layout_group_image"
             android:layout_width="40dp"
-            android:layout_height="40dp"></de.hdodenhof.circleimageview.CircleImageView>
+            android:layout_height="40dp" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -51,7 +51,9 @@
                 android:layout_below="@id/chat_activity_layout_group_name"
                 android:layout_alignStart="@id/chat_activity_layout_group_name"
                 android:textSize="12sp"
-                android:textStyle="italic|bold"></TextView>
+                android:textStyle="italic|bold">
+
+            </TextView>
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/chat_activity_writing_animation"
@@ -63,7 +65,7 @@
                 android:visibility="invisible"
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true"
-                app:lottie_url="https://assets6.lottiefiles.com/packages/lf20_2LBdNH.json"></com.airbnb.lottie.LottieAnimationView>
+                app:lottie_url="https://assets6.lottiefiles.com/packages/lf20_2LBdNH.json" />
 
         </RelativeLayout>
 
@@ -89,7 +91,7 @@
         android:background="@drawable/chat_activity_hour_layout"
         android:paddingHorizontal="10dp"
         android:layout_marginTop="5dp"
-        android:elevation="3dp"></TextView>
+        android:elevation="3dp" />
 
 
     <!--    app:lottie_url="https://assets3.lottiefiles.com/packages/lf20_HuMl4x/chat_04.json"-->
