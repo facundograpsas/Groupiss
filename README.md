@@ -1,6 +1,6 @@
-# Groupiss
+# Groupis
 
-Groupiss it's a work in progress WhatsApp like project for android. 
+Groupis it's a work in progress WhatsApp like personal project for android made with kotlin that uses firebase database, storage, and messaging for network operations.
 
 ![Image of Yaktocat](https://github.com/facundograpsas/Groupiss/blob/master/screenshots/7.jpeg)
 
