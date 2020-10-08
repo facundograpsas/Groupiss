@@ -64,10 +64,6 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:3.1.0'
     implementation "com.airbnb.android:lottie:3.4.0"
 
-//    implementation "com.android.support:support-emoji-appcompat:$version"
-//
-//    implementation "com.android.support:support-emoji-bundled:$version"
-
     implementation 'com.google.firebase:firebase-storage-ktx:19.2.0'
 
     api 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
@@ -77,19 +73,10 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
     implementation 'com.jakewharton.rxbinding4:rxbinding:4.0.0'
-
-
-
     implementation 'com.google.firebase:firebase-messaging:20.2.4'
     implementation 'com.squareup.retrofit2:retrofit:2.6.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
 
-
-
-
-
-
-//    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 
 
 }
