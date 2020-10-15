@@ -1,6 +1,5 @@
-package com.app.groupis.activities.main
+package com.app.groupis.activities.main.lobby
 
-import android.renderscript.Sampler
 import android.util.Log
 import com.app.groupis.models.Group
 import com.app.groupis.models.User
@@ -97,7 +96,6 @@ class GroupRepository {
     }
 
 }
-
 
 interface Callback {
     fun onSuccess(snapshot: DataSnapshot)

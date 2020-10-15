@@ -15,25 +15,19 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.Observer
 import androidx.viewpager.widget.ViewPager
 import com.app.groupis.GlideApp
 import com.app.groupis.R
-import com.app.groupis.activities.main.adapters.SectionsPagerAdapter
+import com.app.groupis.activities.SplashActivity
 import com.app.groupis.activities.newgroup.NewGroupActivity
 import com.app.groupis.activities.profile.ProfileActivity
-import com.app.groupis.activities.signIn.SignInActivity
-import com.app.groupis.activities.username.SetUsernameActivity
+import com.app.groupis.activities.profile.UsernameCallback
 import com.app.groupis.models.User
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import de.hdodenhof.circleimageview.CircleImageView
@@ -57,6 +51,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var user: User
     private lateinit var myPrefs: SharedPreferences
     private lateinit var viewPager: ViewPager
+    private val userViewModel: UserViewModel by viewModels()
 
     val TAG = "MainActivity"
 
@@ -82,15 +77,17 @@ class MainActivity : AppCompatActivity() {
         profileImage = findViewById(R.id.profile_image)
         myPrefs = getSharedPreferences("prefs", MODE_PRIVATE)
 
-        val viewModel: UserViewModel by viewModels()
+        val userI = intent.getSerializableExtra("user") as User
+        profileName.text = userI.getNameId()
 
         val storageRef = FirebaseStorage.getInstance().reference.child("/users")
 
 
         if (FirebaseAuth.getInstance().currentUser != null) {
-            viewModel.retrieveUser(object : RetrieveUserCallback {
+            userViewModel.retrieveUser(object : RetrieveUserCallback {
                 override fun onCallback(userP: User) {
                     user = userP
+                    userViewModel.setUser(user)
                     if (user.getPictureRef() != null) {
                         GlideApp.with(this@MainActivity)
                             .load(storageRef.child(user.getPictureRef()!! + ".jpg"))
@@ -100,13 +97,9 @@ class MainActivity : AppCompatActivity() {
             })
         }
 
-
-        retrieveUser(viewModel)
         fabOnClick()
         onProfileClick()
-        redirectNewUser()
-
-        onAddPublicGroupClick(viewModel)
+        onAddPublicGroupClick(userViewModel)
 
         Log.e(TAG, "CREATED VIEW")
 
@@ -118,19 +111,10 @@ class MainActivity : AppCompatActivity() {
             fabAddPublic.isClickable = false
             val options = ActivityOptions.makeSceneTransitionAnimation(this)
             val intent = Intent(this@MainActivity, NewGroupActivity::class.java)
-                .apply { putExtra("user", viewModel.getUser().value) }
+                .apply { putExtra("user", user) }
             startActivity(intent, options.toBundle())
         }
 
-        viewModel.user.observe(this, Observer { user ->
-            profileName.text = user.getNameId()
-        })
-    }
-
-    private fun retrieveUser(viewModel: UserViewModel) {
-        if (FirebaseAuth.getInstance().currentUser != null) {
-            viewModel.retrieveUser()
-        }
     }
 
     private fun onProfileClick() {
@@ -195,40 +179,18 @@ class MainActivity : AppCompatActivity() {
     private fun logout() {
         GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN).signOut()
         FirebaseAuth.getInstance().signOut()
+        startActivity(Intent(this@MainActivity, SplashActivity::class.java))
         finish()
-        startActivity(Intent(this@MainActivity, SignInActivity::class.java))
-    }
-
-    private fun redirectNewUser(){
-        if (FirebaseAuth.getInstance().currentUser == null) {
-            startActivity(Intent(this@MainActivity, SignInActivity::class.java))
-            finish()
-        } else if (FirebaseAuth.getInstance().currentUser != null) {
-            val refUser = FirebaseDatabase.getInstance().reference.child("Users")
-                .child(FirebaseAuth.getInstance().currentUser!!.uid).child("nameId")
-            refUser.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    Log.e(TAG, snapshot.children.toString())
-                    Log.e(TAG, snapshot.value.toString())
-                    Log.e(TAG, snapshot.exists().toString())
-
-
-                    if (!snapshot.exists()) {
-                        Log.e(TAG, "No ExistSxd")
-                        startActivity(Intent(this@MainActivity, SetUsernameActivity::class.java))
-                        finish()
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                }
-            })
-        }
     }
 
     override fun onResume() {
         goToProfile.isClickable = true
         fabAddPublic.isClickable = true
+        userViewModel.retrieveUsername(object : UsernameCallback {
+            override fun onCallback(value: String?) {
+                profileName.text = value
+            }
+        })
         super.onResume()
     }
 
@@ -248,7 +210,6 @@ class MainActivity : AppCompatActivity() {
                 val uriString = data!!.getStringExtra("image")
                 if (uriString != null) {
                     val uri = Uri.parse(uriString)
-//                    profileImage.setImageURI(uri)
                     GlideApp.with(this@MainActivity)
                         .load(uri)
                         .into(profileImage)

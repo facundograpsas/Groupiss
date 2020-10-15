@@ -3,6 +3,9 @@ package com.app.groupis.activities.username
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import com.app.groupis.activities.main.RetrieveUserCallback
+import com.app.groupis.activities.profile.ProfileRepository
+import com.app.groupis.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -23,7 +26,19 @@ class UsernameViewModel : ViewModel() {
         MutableLiveData<Boolean>()
     }
 
-    fun checkUsernameAvailable(activity : SetUsernameActivity){
+    val mUser: MutableLiveData<User> by lazy {
+        MutableLiveData<User>()
+    }
+
+
+    private val profileRepository = ProfileRepository()
+
+    init {
+        loadUser()
+    }
+
+
+    fun checkUsernameAvailable(activity: SetUsernameActivity) {
         userName.observe(activity, Observer { username ->
             val refUsername =
                 FirebaseDatabase.getInstance().reference.child("Users").orderByChild("username")
@@ -38,6 +53,7 @@ class UsernameViewModel : ViewModel() {
                         println("NO EXISTE")
                     }
                 }
+
                 override fun onCancelled(error: DatabaseError) {
                 }
             })
@@ -55,9 +71,22 @@ class UsernameViewModel : ViewModel() {
                     refUser.updateChildren(userHashMap)
                 }
             }
+
             override fun onCancelled(error: DatabaseError) {
             }
         })
+    }
+
+    private fun loadUser() {
+        profileRepository.retrieveUser(object : RetrieveUserCallback {
+            override fun onCallback(user: User) {
+                mUser.value = user
+            }
+        })
+    }
+
+    fun getUser(): User {
+        return mUser.value!!
     }
 }
 

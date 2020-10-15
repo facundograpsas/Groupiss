@@ -87,6 +87,7 @@ class SetUsernameActivity : AppCompatActivity() {
                 prefs.putString(FirebaseAuth.getInstance().currentUser!!.uid, viewModel.userName.value)
                 prefs.apply()
                 val intent = Intent(this@SetUsernameActivity, MainActivity::class.java)
+                    .putExtra("user", viewModel.getUser())
                 startActivity(intent)
                 finish()
             }

@@ -1,4 +1,4 @@
-package com.app.groupis.activities.main.adapters
+package com.app.groupis.activities.main.lobby
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -10,7 +10,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.app.groupis.GlideApp
 import com.app.groupis.R
-import com.app.groupis.activities.main.GroupViewModel
 import com.app.groupis.models.Group
 import com.app.groupis.models.User
 import com.google.firebase.auth.FirebaseAuth
@@ -21,13 +20,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class GroupAdapter(private val mContext: Context,
-                   private val mGroupList: List<Group>, private val user: User,
-                   private val groupViewModel: GroupViewModel
-) : RecyclerView.Adapter<GroupAdapter.ViewHolder>() {
+class LobbyGroupAdapter(
+    private val mContext: Context,
+    private val mGroupList: List<Group>, private val user: User,
+    private val groupViewModel: GroupViewModel
+) : RecyclerView.Adapter<LobbyGroupAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
-        val view : View = LayoutInflater.from(mContext).inflate(R.layout.group_item_layout, viewGroup, false)
+        val view: View =
+            LayoutInflater.from(mContext).inflate(R.layout.group_item_layout, viewGroup, false)
         return ViewHolder(view)
     }
 
@@ -36,7 +37,6 @@ class GroupAdapter(private val mContext: Context,
 
 
         val group : Group? = mGroupList[position]
-
         holder.groupTitle.text = group!!.getTitle()
 
         groupImageHolder(group, holder)
@@ -64,13 +64,11 @@ class GroupAdapter(private val mContext: Context,
     private fun onItemClicked(it: View, group: Group) {
         it.isClickable = false
         val userUID = FirebaseAuth.getInstance().currentUser!!.uid
-        groupViewModel.onPublicGroupClickk(mContext, user, userUID, group)
+        groupViewModel.onPublicGroupClick(mContext, user, userUID, group)
         CoroutineScope(Dispatchers.Main).launch {
             suspend {
-                println("QUE ONDA VATO")
                 delay(1000)
                 it.isClickable = true
-                println("asdasd")
             }.invoke()
         }
     }
@@ -110,7 +108,6 @@ class GroupAdapter(private val mContext: Context,
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
         var groupTitle: TextView = itemView.findViewById(R.id.group_layout_title)
-//        var groupImage : CircleImageView? = itemView.findViewById(R.id.group_layout_profile_picture)
         var groupMembers : TextView = itemView.findViewById(R.id.group_layout_members)
         var groupInfo : ImageView = itemView.findViewById(R.id.group_layout_info)
         var groupImage : CircleImageView = itemView.findViewById(R.id.group_layout_profile_picture)

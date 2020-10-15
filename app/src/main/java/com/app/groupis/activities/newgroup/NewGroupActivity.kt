@@ -15,11 +15,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.airbnb.lottie.LottieAnimationView
 import com.app.groupis.R
-import com.app.groupis.activities.main.GroupViewModel
-import com.app.groupis.activities.main.MyGroupViewModel
-import com.app.groupis.activities.main.NewGroupCallback
+import com.app.groupis.activities.main.lobby.GroupViewModel
+import com.app.groupis.activities.main.mygroups.MyGroupViewModel
+import com.app.groupis.activities.main.lobby.NewGroupCallback
 import com.app.groupis.activities.main.UserViewModel
-import com.app.groupis.activities.profile.UsernameCallback
 import com.app.groupis.models.User
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.theartofdev.edmodo.cropper.CropImage
@@ -41,7 +40,7 @@ class NewGroupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_group)
 
-        val user = intent.getSerializableExtra("user") as? User
+        val user = intent.getSerializableExtra("user") as User
 
         val groupViewModel : GroupViewModel by viewModels()
         val userViewModel : UserViewModel by viewModels()

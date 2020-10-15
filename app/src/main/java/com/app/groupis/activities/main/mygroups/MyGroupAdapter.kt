@@ -1,4 +1,4 @@
-package com.app.groupis.activities.main.adapters
+package com.app.groupis.activities.main.mygroups
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -9,9 +9,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.app.groupis.GlideApp
 import com.app.groupis.R
-import com.app.groupis.activities.main.LastMessageCallback
-import com.app.groupis.activities.main.MyGroupViewModel
-import com.app.groupis.activities.main.UnseenMessagesCallback
 import com.app.groupis.models.Chat
 import com.app.groupis.models.Group
 import com.app.groupis.models.User
@@ -52,12 +49,17 @@ class MyGroupAdapter(private val mContext : Context, private val mGroupList : Ar
         holder: ViewHolder
     ) {
         if (group.getIsWriting() == "None") {
-            myGroupViewModel.getLastMessage(group.getTitle(), object : LastMessageCallback {
+            myGroupViewModel.getLastMessagee(group.getTitle(), object : LastMessageCallback {
                 override fun onCallback(value: Chat) {
                     val username = value.getUsername()
                     holder.groupWhoIsWriting.visibility = View.INVISIBLE
                     holder.groupLastMessage.visibility = View.VISIBLE
-                    holder.groupLastMessage.text = username + ":" + value.getText()
+                    if (username != user.getNameId()) {
+                        holder.groupLastMessage.text = username + ":" + value.getText()
+
+                    } else {
+                        holder.groupLastMessage.text = value.getText()
+                    }
                     holder.groupLastMessageTime.text = value.getHour()
                 }
             })
@@ -82,7 +84,7 @@ class MyGroupAdapter(private val mContext : Context, private val mGroupList : Ar
 
     private fun groupImageHolder(
         group: Group,
-        holder: MyGroupAdapter.ViewHolder
+        holder: ViewHolder
     ) {
         if(group.getPicture()!=null){
             val storageRef = FirebaseStorage.getInstance().reference.child("/images")
@@ -98,7 +100,7 @@ class MyGroupAdapter(private val mContext : Context, private val mGroupList : Ar
         holder: ViewHolder
     ) {
         if (mGroupList.size >= 1) {
-            myGroupViewModel.unseenMessages(group.getTitle(), object : UnseenMessagesCallback {
+            myGroupViewModel.unseenMessagess(group.getTitle(), object : UnseenMessagesCallback {
                 override fun onCallback(unseenMessages: String) {
                     holder.groupUnseenMessages.text = unseenMessages
                     if (holder.groupUnseenMessages.text == "0") {

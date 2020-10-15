@@ -1,4 +1,4 @@
-package com.app.groupis.activities.main.fragments
+package com.app.groupis.activities.main.lobby
 
 import android.content.Context
 import android.os.Bundle
@@ -12,9 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.groupis.R
-import com.app.groupis.activities.main.GroupViewModel
 import com.app.groupis.activities.main.UserViewModel
-import com.app.groupis.activities.main.adapters.GroupAdapter
 import com.app.groupis.models.Group
 
 
@@ -27,9 +25,9 @@ class LobbyFragment : Fragment() {
 
     private var param1: String? = null
     private var param2: String? = null
-    private lateinit var recyclerGroupList : RecyclerView
-    private lateinit var groupAdapter : GroupAdapter
-    private lateinit var groups : ArrayList<Group>
+    private lateinit var recyclerGroupList: RecyclerView
+    private lateinit var lobbyGroupAdapter: LobbyGroupAdapter
+    private lateinit var groups: ArrayList<Group>
     private lateinit var mContext : Context
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +38,7 @@ class LobbyFragment : Fragment() {
 
 
         }
+
     }
 
     override fun onCreateView(
@@ -58,15 +57,15 @@ class LobbyFragment : Fragment() {
 
         createPublicGroupResult()
 
-        viewModel.userLoaded.observe(viewLifecycleOwner, Observer {
+//        viewModel.userLoaded.observe(viewLifecycleOwner, Observer {
             retrievePublicGroups(groupViewModel, viewModel)
-        })
+//        })
 
         return view
     }
 
     private fun retrievePublicGroups(groupViewModel: GroupViewModel, userViewModel: UserViewModel){
-        groupViewModel.getPublicGroupss(
+        groupViewModel.getPublicGroups(
             groups,
             userViewModel,
             mContext,

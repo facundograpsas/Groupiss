@@ -5,11 +5,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import com.airbnb.lottie.LottieAnimationView
 import com.app.groupis.R
 import com.app.groupis.activities.main.MainActivity
 import com.app.groupis.activities.username.SetUsernameActivity
+import com.app.groupis.models.User
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -29,6 +32,7 @@ class SignInActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var loadingAnimation: LottieAnimationView
     val TAG = "SigInActivity"
+    private val signInViewModel: SignInViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,10 +48,14 @@ class SignInActivity : AppCompatActivity() {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
         signInButton = findViewById(R.id.sign_in_button)
         signInButton.setSize(1)
-        signInButton.setOnClickListener{
+        signInButton.setOnClickListener {
             signIn()
         }
 
+        signInViewModel.newUser.observe(this, Observer { it ->
+            Log.e(TAG, it.toString())
+            toMainActivity()
+        })
     }
 
     private fun signIn() {
@@ -65,7 +73,7 @@ class SignInActivity : AppCompatActivity() {
             loadingAnimation.visibility = View.VISIBLE
             if(task.isSuccessful) {
                 Log.e(TAG, "Task successful")
-                SignInWithGoogleHandler(task, this) { toMainActivity() }
+                SignInWithGoogleHandler(task, this, signInViewModel)
             }
             else{
                 loadingAnimation.visibility = View.INVISIBLE
@@ -74,22 +82,37 @@ class SignInActivity : AppCompatActivity() {
     }
 
     private fun toMainActivity(){
-        val refUser = FirebaseDatabase.getInstance().reference.child("Users").child(FirebaseAuth.getInstance().currentUser!!.uid).child("nameId")
+        val refUser = FirebaseDatabase.getInstance().reference.child("Users")
+            .child(FirebaseAuth.getInstance().currentUser!!.uid)
         refUser.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 Log.e(TAG, snapshot.children.toString())
                 Log.e(TAG, snapshot.value.toString())
                 Log.e(TAG, snapshot.exists().toString())
 
-
-                if (!snapshot.exists()) {
-                    Log.e(TAG, "No ExistSxd")
-                    startActivity(Intent(this@SignInActivity, SetUsernameActivity::class.java))
-                    finish()
-                } else {
-                    Log.e(TAG, "Existteeeeeeeee")
-                    startActivity(Intent(this@SignInActivity, MainActivity::class.java))
-                    finish()
+                val user = snapshot.getValue(User::class.java)
+                if (user != null) {
+                    if (user.getNameId() == null) {
+                        Log.e(TAG, "No ExistSxd")
+                        startActivity(
+                            Intent(
+                                this@SignInActivity,
+                                SetUsernameActivity::class.java
+                            ).putExtra("user", user)
+                        )
+//                        signInViewModel.subscribeToTopics()
+                        finish()
+                    } else {
+                        Log.e(TAG, "Existteeeeeeeee")
+                        startActivity(
+                            Intent(
+                                this@SignInActivity,
+                                MainActivity::class.java
+                            ).putExtra("user", user)
+                        )
+//                        signInViewModel.subscribeToTopics()
+                        finish()
+                    }
                 }
             }
 

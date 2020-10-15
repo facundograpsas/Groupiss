@@ -5,7 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
-import android.graphics.Bitmap
+import android.graphics.*
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -16,6 +16,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.scale
 import androidx.lifecycle.Observer
 import com.app.groupis.GlideApp
 import com.app.groupis.R
@@ -75,7 +76,7 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         if (profileName.text == null) {
-            viewModel.retrieveUser()
+            viewModel.retrieveUserr()
         }
 
 
@@ -208,7 +209,11 @@ class ProfileActivity : AppCompatActivity() {
     private fun saveImageToStorage(result: CropImage.ActivityResult): Pair<Uri, UploadTask> {
         val imageUri = result.uri
         val baos = ByteArrayOutputStream()
-        val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, imageUri)
+        val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, imageUri).scale(
+            500,
+            500
+        )
+//        val croppedBitmap = getCroppedBitmap(bitmap)!!.scale(500,500)
         bitmap!!.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val dataA = baos.toByteArray()
         val uploadTask = imageRef.putBytes(dataA)
@@ -219,4 +224,29 @@ class ProfileActivity : AppCompatActivity() {
         Instrumentation().callActivityOnSaveInstanceState(this, Bundle())
         super.onStop()
     }
+
+//    fun getCroppedBitmap(bitmap: Bitmap): Bitmap? {
+//        val output = Bitmap.createBitmap(
+//            bitmap.width,
+//            bitmap.height, Bitmap.Config.ARGB_8888
+//        )
+//        val canvas = Canvas(output)
+//        val color = -0xbdbdbe
+//        val paint = Paint()
+//        val rect = Rect(0, 0, bitmap.width, bitmap.height)
+//        paint.isAntiAlias = true
+//        canvas.drawARGB(0, 0, 0, 0)
+//        paint.color = color
+//        // canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+//        canvas.drawCircle(
+//            (bitmap.width / 2).toFloat(), (bitmap.height / 2).toFloat(),
+//            (bitmap.width / 2).toFloat(), paint
+//        )
+//        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+//        canvas.drawBitmap(bitmap, rect, rect, paint)
+//        //Bitmap _bmp = Bitmap.createScaledBitmap(output, 60, 60, false);
+//        //return _bmp;
+//        return output
+//    }
+
 }

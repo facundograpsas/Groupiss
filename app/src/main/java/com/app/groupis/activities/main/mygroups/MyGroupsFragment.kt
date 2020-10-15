@@ -1,4 +1,4 @@
-package com.app.groupis.activities.main.fragments
+package com.app.groupis.activities.main.mygroups
 
 import android.content.Context
 import android.os.Bundle
@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.groupis.R
-import com.app.groupis.activities.main.MyGroupViewModel
 import com.app.groupis.activities.main.UserViewModel
 import com.app.groupis.models.Group
 
@@ -50,15 +49,21 @@ class MyGroupsFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
         myGroups = arrayListOf()
 
-        viewModel.userLoaded.observe(viewLifecycleOwner, Observer {
+//        viewModel.userLoaded.observe(viewLifecycleOwner, Observer {
             retrieveMyGroups(viewModel, myGroupViewModel)
-        })
+//        })
 
         return view
     }
 
     private fun retrieveMyGroups(userViewModel: UserViewModel, myGroupViewModel: MyGroupViewModel){
-        myGroupViewModel.getMyGroups(myGroups, userViewModel, mContext, recyclerView, myGroupViewModel)
+        myGroupViewModel.getMyGroupss(
+            myGroups,
+            userViewModel,
+            mContext,
+            recyclerView,
+            myGroupViewModel
+        )
     }
 
     companion object {

@@ -1,12 +1,12 @@
-package com.app.groupis.activities.main.adapters
+package com.app.groupis.activities.main
 
 import android.content.Context
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.app.groupis.R
-import com.app.groupis.activities.main.fragments.LobbyFragment
-import com.app.groupis.activities.main.fragments.MyGroupsFragment
+import com.app.groupis.activities.main.lobby.LobbyFragment
+import com.app.groupis.activities.main.mygroups.MyGroupsFragment
 
 private val TAB_TITLES = arrayOf(
         R.string.my_groups,

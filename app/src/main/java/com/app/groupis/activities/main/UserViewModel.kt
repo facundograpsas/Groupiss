@@ -1,8 +1,15 @@
 package com.app.groupis.activities.main
 
+import android.content.Context
+import android.content.Intent
+import android.util.Log
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.app.groupis.activities.main.lobby.Callback
+import com.app.groupis.activities.profile.UsernameCallback
+import com.app.groupis.activities.username.SetUsernameActivity
 import com.app.groupis.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -12,9 +19,12 @@ import com.google.firebase.database.ValueEventListener
 
 class UserViewModel : ViewModel() {
 
-    var _username = MutableLiveData<String>()
+    private var _username = MutableLiveData<String>()
     val user = MutableLiveData<User>()
     val userLoaded = MutableLiveData<Boolean>()
+
+    private val userRepository = UserRepository()
+    val TAG = "UserViewModel"
 
 
     fun setUsername(username: String) {
@@ -71,6 +81,19 @@ class UserViewModel : ViewModel() {
 
             override fun onCancelled(error: DatabaseError) {
             }
+        })
+    }
+
+    fun retrieveUsername(usernameCallback: UsernameCallback) {
+        userRepository.getUsername(object : Callback {
+            override fun onSuccess(snapshot: DataSnapshot) {
+                usernameCallback.onCallback(snapshot.value as String?)
+            }
+
+            override fun onFailure(message: String) {
+                Log.e(TAG, message)
+            }
+
         })
     }
 }

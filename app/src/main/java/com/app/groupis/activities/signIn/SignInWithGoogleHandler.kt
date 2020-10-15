@@ -3,6 +3,7 @@ package com.app.groupis.activities.signIn
 import android.app.Activity
 import android.util.Log
 import android.widget.Toast
+import com.app.groupis.activities.main.lobby.Callback
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
@@ -12,32 +13,46 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-class SignInWithGoogleHandler(task: Task<GoogleSignInAccount>, activity : Activity, toMainActivity: () -> Unit?){
+class SignInWithGoogleHandler(
+    task: Task<GoogleSignInAccount>,
+    activity: Activity,
+    val viewModel: SignInViewModel
+) {
 
 
-    private lateinit var firebaseAuth : FirebaseAuth
+    private lateinit var firebaseAuth: FirebaseAuth
+
     init {
-        handleSignInResult(task, activity,toMainActivity)
+        handleSignInResult(task, activity)
     }
 
-    private fun handleSignInResult(task: Task<GoogleSignInAccount>,  activity : Activity, toMainActivity: () -> Unit?) {
-        try{
+    private fun handleSignInResult(task: Task<GoogleSignInAccount>, activity: Activity) {
+        try {
             firebaseAuth = FirebaseAuth.getInstance()
-            firebaseAuthWithGoogle(task.result!!.idToken!!, activity, toMainActivity)
-        }catch (e: ApiException){
+            firebaseAuthWithGoogle(task.result!!.idToken!!, activity)
+        } catch (e: ApiException) {
             Log.w("Log in", "sigInResult: failed code = " + e.statusCode)
         }
     }
 
-    private fun firebaseAuthWithGoogle(idToken: String, activity : Activity, toMainActivity: () -> Unit?) {
+    private fun firebaseAuthWithGoogle(idToken: String, activity: Activity) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         firebaseAuth.signInWithCredential(credential)
-            .addOnCompleteListener(activity) {task : Task<AuthResult> ->
+            .addOnCompleteListener(activity) { task: Task<AuthResult> ->
                 if (task.isSuccessful) {
-                    Log.d("TAG", "signInWithCredential:success")
-                    val user = firebaseAuth!!.currentUser
+                    Log.e("TAG", "signInWithCredential:success")
+                    val user = firebaseAuth.currentUser
+//                    FirebaseDatabase.getInstance().reference.child("Users").child(user!!.uid)
+//                        .addListenerForSingleValueEvent(object : ValueEventListener{
+//                            override fun onDataChange(snapshot: DataSnapshot) {
+//
+//                            }
+//
+//                            override fun onCancelled(error: DatabaseError) {
+//                            }
+//
+//                        })
                     registerNewUser(user!!)
-                    toMainActivity()
                 } else {
                     Log.w("TAG", "signInWithCredential:failure", task.exception)
                     Toast.makeText(activity.applicationContext, "Conexion no disponible", Toast.LENGTH_LONG).show()
@@ -45,20 +60,15 @@ class SignInWithGoogleHandler(task: Task<GoogleSignInAccount>, activity : Activi
             }
     }
 
-    private fun registerNewUser(user : FirebaseUser){
+    private fun registerNewUser(user: FirebaseUser) {
         val refUser = FirebaseDatabase.getInstance().reference.child("Users").child(user.uid)
-        refUser.addListenerForSingleValueEvent(object: ValueEventListener{
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if(!snapshot.exists()){
-                        val userHashMap = HashMap<String, Any>()
-                        userHashMap["uid"] = user.uid
-                        userHashMap["name"] = user.displayName!!
-                        userHashMap["email"] = user.email!!
-                        refUser.updateChildren(userHashMap)
-                    }
-                }
-                override fun onCancelled(error: DatabaseError) {
-                }
-        })
+        val userHashMap = HashMap<String, Any>()
+        userHashMap["uid"] = user.uid
+        userHashMap["name"] = user.displayName!!
+        userHashMap["email"] = user.email!!
+        refUser.updateChildren(userHashMap)
+        viewModel.newUser.value = true
     }
+
 }
+

@@ -13,6 +13,7 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.app.groupis.Checking
@@ -21,6 +22,7 @@ import com.app.groupis.MyBroadCastReceiver
 import com.app.groupis.R
 import com.app.groupis.activities.chat.ChatActivity
 import com.app.groupis.models.Group
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -61,7 +63,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         super.onMessageReceived(message)
         Log.e(TAG, "RECEIVED")
 
-        if(message.data["clearCode"]=="123123") {
+        Log.e(TAG, FirebaseInstanceId.getInstance().id)
+
+        if (message.data["clearCode"] == "123123") {
+            Log.e(TAG, "INSIDE CLEARCODE")
             clearNotifications(message)
             if (messagesList.size > 1) {
                 notificationManager.notify(
@@ -78,24 +83,29 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             val username = message.data["username"]
             val text = message.data["message"]
 
-            if (message.data["token"].toString() != FirebaseInstanceId.getInstance().id && !Checking.isRunning) {
+            if (message.data["token"].toString() != FirebaseInstanceId.getInstance().id && !Checking.isRunning && FirebaseAuth.getInstance().currentUser != null) {
 
                 val pictureRef = message.data["pictureRef"]
                 if (pictureRef != null) {
                     Log.e(TAG, pictureRef)
                     GlideApp.with(this)
                         .asBitmap()
+//                        .override(50,50)
                         .load(storageReference.child(pictureRef + ".jpg"))
+
                         .circleCrop()
 //                        .skipMemoryCache(true)
 //                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                        .centerInside()
+//                        .centerCrop()
                         .into(object : CustomTarget<Bitmap>() {
                             override fun onResourceReady(
                                 resource: Bitmap,
                                 transition: Transition<in Bitmap>?
                             ) {
-                                icon = Icon.createWithAdaptiveBitmap(resource)
+//                                val circularBitmapDrawable = RoundedBitmapDrawableFactory.create(this@MyFirebaseMessagingService.resources, resource)
+//                                circularBitmapDrawable.isCircular = true
+
+                                icon = Icon.createWithBitmap(resource)
                                 val user = Person.Builder().setName(username)
                                     .setUri(group.getGroupId().toString()).setIcon(icon).build()
                                 updateNotification(text, group, user)

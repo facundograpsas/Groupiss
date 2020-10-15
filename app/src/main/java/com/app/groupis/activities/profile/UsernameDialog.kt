@@ -25,10 +25,10 @@ class UsernameDialog(private var username: String) : DialogFragment() {
                 // Add action buttons
                 .setPositiveButton("Aceptar"
                 ) { _, _ ->
-                    viewModel.changeUsername(editText.text.toString(), object: UsernameCallback{
-                        override fun onCallback(value: String) {
+                    viewModel.changeUsername(editText.text.toString(), object : UsernameCallback {
+                        override fun onCallback(value: String?) {
                             println(value)
-                            viewModel.setValid(value)
+                            viewModel.setValid(value!!)
                         }
                     })
                     viewModel.setUsername(editText.text.toString())
@@ -45,5 +45,5 @@ class UsernameDialog(private var username: String) : DialogFragment() {
 }
 
 interface UsernameCallback{
-    fun onCallback(value : String)
+    fun onCallback(value: String?)
 }
